@@ -15,18 +15,41 @@ type ResponseBodyGenerator interface {
 
 type FakeResponseBodyGenerator struct {
 	use string
+	val int
 }
 
 func (instance *FakeResponseBodyGenerator) Generate() string {
 	return instance.use
 }
 
-func (instance *FakeResponseBodyGenerator) Use(value string) {
+func (instance *FakeResponseBodyGenerator) UseString(value string) {
 	instance.use = value
 }
 
 func NewFakeResponseBodyGenerator() *FakeResponseBodyGenerator {
-	return &FakeResponseBodyGenerator{""}
+	return &FakeResponseBodyGenerator{"", 1}
+}
+
+type DefaultEnanosHttpHandlerFactory struct {
+	responseBodyGenerator ResponseBodyGenerator
+}
+
+func (instance *DefaultEnanosHttpHandlerFactory) Happy(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func (instance *DefaultEnanosHttpHandlerFactory) Grumpy(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusInternalServerError)
+}
+
+func (instance *DefaultEnanosHttpHandlerFactory) Sneezy(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	data := instance.responseBodyGenerator.Generate()
+	w.Write([]byte(data))
+}
+
+func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator) *DefaultEnanosHttpHandlerFactory {
+	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator}
 }
 
 func Test_Enanos(t *testing.T) {
@@ -34,6 +57,7 @@ func Test_Enanos(t *testing.T) {
 	g.Describe("Enanos Server:", func() {
 
 		var fakeResponseBodyGenerator *FakeResponseBodyGenerator
+		var enanosHttpHandlerFactory *DefaultEnanosHttpHandlerFactory
 
 		url := func(path string) (fullPath string) {
 			fullPath = "http://localhost:8000" + path
@@ -41,23 +65,19 @@ func Test_Enanos(t *testing.T) {
 		}
 
 		g.BeforeEach(func() {
-			fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
-
 			go func() {
-				defaultHappy := func(w http.ResponseWriter, r *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}
-				defaultGrumpy := func(w http.ResponseWriter, r *http.Request) {
-					w.WriteHeader(http.StatusInternalServerError)
-				}
-				defaultSneezy := func(w http.ResponseWriter, r *http.Request) {
-					w.WriteHeader(http.StatusOK)
-					w.Write([]byte(fakeResponseBodyGenerator.Generate()))
-				}
+				fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
+				enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator)
 				mux := http.NewServeMux()
-				mux.HandleFunc("/default/happy", defaultHappy)
-				mux.HandleFunc("/default/grumpy", defaultGrumpy)
-				mux.HandleFunc("/default/sneezy", defaultSneezy)
+				mux.HandleFunc("/default/happy", func(writer http.ResponseWriter, request *http.Request) {
+					enanosHttpHandlerFactory.Happy(writer, request)
+				})
+				mux.HandleFunc("/default/grumpy", func(writer http.ResponseWriter, request *http.Request) {
+					enanosHttpHandlerFactory.Grumpy(writer, request)
+				})
+				mux.HandleFunc("/default/sneezy", func(writer http.ResponseWriter, request *http.Request) {
+					enanosHttpHandlerFactory.Sneezy(writer, request)
+				})
 				err := http.ListenAndServe(":8000", mux)
 				if err != nil {
 					fmt.Errorf("error encountered %v", err)
@@ -87,7 +107,7 @@ func Test_Enanos(t *testing.T) {
 
 			g.It("GET returns random response body", func() {
 				sample := "foobar"
-				fakeResponseBodyGenerator.Use(sample)
+				fakeResponseBodyGenerator.UseString(sample)
 				resp, _ := http.Get(url("/default/sneezy"))
 				defer resp.Body.Close()
 				body, _ := ioutil.ReadAll(resp.Body)
