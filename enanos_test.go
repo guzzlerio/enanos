@@ -15,7 +15,6 @@ type ResponseBodyGenerator interface {
 
 type FakeResponseBodyGenerator struct {
 	use string
-	val int
 }
 
 func (instance *FakeResponseBodyGenerator) Generate() string {
@@ -27,7 +26,7 @@ func (instance *FakeResponseBodyGenerator) UseString(value string) {
 }
 
 func NewFakeResponseBodyGenerator() *FakeResponseBodyGenerator {
-	return &FakeResponseBodyGenerator{"", 1}
+	return &FakeResponseBodyGenerator{""}
 }
 
 type DefaultEnanosHttpHandlerFactory struct {
