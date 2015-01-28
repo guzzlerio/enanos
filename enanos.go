@@ -33,8 +33,8 @@ func NewDefaultResponseBodyGenerator(maxLength int) *DefaultResponseBodyGenerato
 }
 
 type RandomResponseBodyGenerator struct {
-	maxLength int
 	minLength int
+	maxLength int
 }
 
 func (instance *RandomResponseBodyGenerator) Generate() string {
@@ -45,8 +45,8 @@ func (instance *RandomResponseBodyGenerator) Generate() string {
 	return string(returnArray)
 }
 
-func NewRandomResponseBodyGenerator(maxLength int, minLength int) *RandomResponseBodyGenerator {
-	return &RandomResponseBodyGenerator{maxLength, minLength}
+func NewRandomResponseBodyGenerator(minLength int, maxLength int) *RandomResponseBodyGenerator {
+	return &RandomResponseBodyGenerator{minLength, maxLength}
 }
 
 type EnanosHttpHandlerFactory interface {
