@@ -44,6 +44,19 @@ func Test_Enanos_Without_Goblin(t *testing.T) {
 	assert.Equal(t, sample, string(body))
 }
 
+func Test_DefaultResponseBodyGenerator(t *testing.T) {
+
+	g := goblin.Goblin(t)
+	g.Describe("Default Response Body Generator", func() {
+		g.It("generates a string of the defined lenth", func() {
+			maxLength := 5
+			generator := NewDefaultResponseBodyGenerator(maxLength)
+			value := generator.Generate()
+			assert.Equal(t, maxLength, len(value))
+		})
+	})
+}
+
 func Test_Enanos(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Enanos Server:", func() {

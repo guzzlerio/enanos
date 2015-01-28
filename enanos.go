@@ -9,6 +9,22 @@ type ResponseBodyGenerator interface {
 	Generate() string
 }
 
+type DefaultResponseBodyGenerator struct {
+	maxLength int
+}
+
+func (instance *DefaultResponseBodyGenerator) Generate() string {
+	var returnArray = make([]rune, instance.maxLength)
+	for i := range returnArray {
+		returnArray[i] = '-'
+	}
+	return string(returnArray)
+}
+
+func NewDefaultResponseBodyGenerator(maxLength int) *DefaultResponseBodyGenerator {
+	return &DefaultResponseBodyGenerator{maxLength}
+}
+
 type EnanosHttpHandlerFactory interface {
 	Happy(w http.ResponseWriter, r *http.Request)
 	Grumpy(w http.ResponseWriter, r *http.Request)
