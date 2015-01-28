@@ -44,7 +44,7 @@ func Test_Enanos_Without_Goblin(t *testing.T) {
 	assert.Equal(t, sample, string(body))
 }
 
-func Test_DefaultResponseBodyGenerator(t *testing.T) {
+func Test_ResponseBodyGenerator(t *testing.T) {
 
 	g := goblin.Goblin(t)
 	g.Describe("Default Response Body Generator", func() {
@@ -53,6 +53,16 @@ func Test_DefaultResponseBodyGenerator(t *testing.T) {
 			generator := NewDefaultResponseBodyGenerator(maxLength)
 			value := generator.Generate()
 			assert.Equal(t, maxLength, len(value))
+		})
+	})
+
+	g.Describe("Random Response Body Generator", func() {
+		g.It("generates a string of length between the defined min length and the defined max length", func() {
+			minLength := 50
+			maxLength := 500
+			generator := NewRandomResponseBodyGenerator(maxLength, minLength)
+			value := generator.Generate()
+			assert.True(t, len(value) >= minLength && len(value) <= maxLength)
 		})
 	})
 }

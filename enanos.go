@@ -2,8 +2,15 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
+	"time"
 )
+
+func random(min, max int) int {
+	rand.Seed(time.Now().Unix())
+	return rand.Intn(max-min) + min
+}
 
 type ResponseBodyGenerator interface {
 	Generate() string
@@ -23,6 +30,23 @@ func (instance *DefaultResponseBodyGenerator) Generate() string {
 
 func NewDefaultResponseBodyGenerator(maxLength int) *DefaultResponseBodyGenerator {
 	return &DefaultResponseBodyGenerator{maxLength}
+}
+
+type RandomResponseBodyGenerator struct {
+	maxLength int
+	minLength int
+}
+
+func (instance *RandomResponseBodyGenerator) Generate() string {
+	var returnArray = make([]rune, random(instance.minLength, instance.maxLength))
+	for i := range returnArray {
+		returnArray[i] = '-'
+	}
+	return string(returnArray)
+}
+
+func NewRandomResponseBodyGenerator(maxLength int, minLength int) *RandomResponseBodyGenerator {
+	return &RandomResponseBodyGenerator{maxLength, minLength}
 }
 
 type EnanosHttpHandlerFactory interface {
