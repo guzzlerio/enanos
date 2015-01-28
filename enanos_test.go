@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"testing"
 )
 
@@ -24,28 +25,19 @@ func NewFakeResponseBodyGenerator() *FakeResponseBodyGenerator {
 	return &FakeResponseBodyGenerator{""}
 }
 
-func Test_Enanos_Without_Goblin(t *testing.T) {
-	var fakeResponseBodyGenerator *FakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
-	var enanosHttpHandlerFactory *DefaultEnanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator)
+var fakeResponseBodyGenerator *FakeResponseBodyGenerator
+var enanosHttpHandlerFactory *DefaultEnanosHttpHandlerFactory
 
-	url := func(path string) (fullPath string) {
-		fullPath = "http://localhost:8000" + path
-		return
-	}
+func TestMain(m *testing.M) {
+	fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
+	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator)
 	go func() {
 		StartEnanos(fakeResponseBodyGenerator, enanosHttpHandlerFactory)
 	}()
-	sample := "foobar"
-	fakeResponseBodyGenerator.UseString(sample)
-	resp, _ := http.Get(url("/default/sneezy"))
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	assert.Equal(t, sample, string(body))
+	os.Exit(m.Run())
 }
 
 func Test_ResponseBodyGenerator(t *testing.T) {
-
 	g := goblin.Goblin(t)
 	g.Describe("Default Response Body Generator", func() {
 		g.It("generates a string of the defined lenth", func() {
@@ -60,7 +52,7 @@ func Test_ResponseBodyGenerator(t *testing.T) {
 		g.It("generates a string of length between the defined min length and the defined max length", func() {
 			minLength := 50
 			maxLength := 500
-			generator := NewRandomResponseBodyGenerator(maxLength, minLength)
+			generator := NewRandomResponseBodyGenerator(minLength, maxLength)
 			value := generator.Generate()
 			assert.True(t, len(value) >= minLength && len(value) <= maxLength)
 		})
@@ -71,21 +63,10 @@ func Test_Enanos(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Enanos Server:", func() {
 
-		var fakeResponseBodyGenerator *FakeResponseBodyGenerator
-		var enanosHttpHandlerFactory *DefaultEnanosHttpHandlerFactory
-
 		url := func(path string) (fullPath string) {
 			fullPath = "http://localhost:8000" + path
 			return
 		}
-
-		g.BeforeEach(func() {
-			fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
-			enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator)
-			go func() {
-				StartEnanos(fakeResponseBodyGenerator, enanosHttpHandlerFactory)
-			}()
-		})
 
 		g.Describe("Happy :", func() {
 			g.It("GET returns 200", func() {
