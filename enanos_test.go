@@ -127,6 +127,11 @@ func Test_Enanos(t *testing.T) {
 				resp, _ := SendHelloWorldByHttpMethod("PUT", grumpyUrl)
 				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 			})
+
+			g.It("DELETE returns 500", func() {
+				resp, _ := SendHelloWorldByHttpMethod("DELETE", grumpyUrl)
+				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+			})
 		})
 
 		g.Describe("Sneezy :", func() {
