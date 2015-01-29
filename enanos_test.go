@@ -83,23 +83,27 @@ func Test_Enanos(t *testing.T) {
 		}
 
 		g.Describe("Happy :", func() {
+			var happyUrl string
+			g.Before(func() {
+				happyUrl = url("/default/happy")
+			})
 			g.It("GET returns 200", func() {
-				resp, _ := http.Get(url("/default/happy"))
+				resp, _ := http.Get(happyUrl)
 				assert.Equal(t, http.StatusOK, resp.StatusCode)
 			})
 
 			g.It("POST returns 200", func() {
-				resp, _ := SendHelloWorldByHttpMethod("POST", url("/default/happy"))
+				resp, _ := SendHelloWorldByHttpMethod("POST", happyUrl)
 				assert.Equal(t, http.StatusOK, resp.StatusCode)
 			})
 
 			g.It("PUT returns 200", func() {
-				resp, _ := SendHelloWorldByHttpMethod("PUT", url("/default/happy"))
+				resp, _ := SendHelloWorldByHttpMethod("PUT", happyUrl)
 				assert.Equal(t, http.StatusOK, resp.StatusCode)
 			})
 
 			g.It("DELETE returns 200", func() {
-				resp, _ := SendHelloWorldByHttpMethod("DELETE", url("/default/happy"))
+				resp, _ := SendHelloWorldByHttpMethod("DELETE", happyUrl)
 				assert.Equal(t, http.StatusOK, resp.StatusCode)
 			})
 		})
