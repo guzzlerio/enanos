@@ -38,7 +38,7 @@ func TestMain(m *testing.M) {
 	fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
 	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator)
 	go func() {
-		StartEnanos(fakeResponseBodyGenerator, enanosHttpHandlerFactory, PORT)
+		StartEnanos(fakeResponseBodyGenerator, enanosHttpHandlerFactory, PORT, false)
 	}()
 	os.Exit(m.Run())
 }

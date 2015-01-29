@@ -10,7 +10,8 @@ const (
 )
 
 var (
-	port = kingpin.Flag("port", "the port to host the server on").Default("8000").Short('p').OverrideDefaultFromEnvar(ENV_ENANOS_PORT).Int()
+	debug = kingpin.Flag("debug", "Enable debug mode.").Bool()
+	port  = kingpin.Flag("port", "the port to host the server on").Default("8000").Short('p').OverrideDefaultFromEnvar(ENV_ENANOS_PORT).Int()
 )
 
 func main() {
@@ -19,5 +20,5 @@ func main() {
 	responseBodyGenerator := NewRandomResponseBodyGenerator(10, 10000)
 	handleFactory := NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator)
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
-	StartEnanos(responseBodyGenerator, handleFactory, *port)
+	StartEnanos(responseBodyGenerator, handleFactory, *port, *debug)
 }
