@@ -109,8 +109,16 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Grumpy :", func() {
+			var grumpyUrl string
+			g.Before(func() {
+				grumpyUrl = url("/default/grumpy")
+			})
 			g.It("GET returns 500", func() {
-				resp, _ := http.Get(url("/default/grumpy"))
+				resp, _ := http.Get(grumpyUrl)
+				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+			})
+			g.It("POST returns 500", func() {
+				resp, _ := SendHelloWorldByHttpMethod("POST", grumpyUrl)
 				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 			})
 		})
