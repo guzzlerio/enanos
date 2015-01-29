@@ -97,6 +97,11 @@ func Test_Enanos(t *testing.T) {
 				resp, _ := SendHelloWorldByHttpMethod("PUT", url("/default/happy"))
 				assert.Equal(t, http.StatusOK, resp.StatusCode)
 			})
+
+			g.It("DELETE returns 200", func() {
+				resp, _ := SendHelloWorldByHttpMethod("DELETE", url("/default/happy"))
+				assert.Equal(t, http.StatusOK, resp.StatusCode)
+			})
 		})
 
 		g.Describe("Grumpy :", func() {
