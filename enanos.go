@@ -77,7 +77,7 @@ func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenera
 	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator}
 }
 
-func StartEnanos(responseBodyGenerator ResponseBodyGenerator, handlerFactory EnanosHttpHandlerFactory) {
+func StartEnanos(responseBodyGenerator ResponseBodyGenerator, handlerFactory EnanosHttpHandlerFactory, port int) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/default/happy", func(writer http.ResponseWriter, request *http.Request) {
 		handlerFactory.Happy(writer, request)
@@ -88,7 +88,7 @@ func StartEnanos(responseBodyGenerator ResponseBodyGenerator, handlerFactory Ena
 	mux.HandleFunc("/default/sneezy", func(writer http.ResponseWriter, request *http.Request) {
 		handlerFactory.Sneezy(writer, request)
 	})
-	err := http.ListenAndServe(":8000", mux)
+	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", port), mux)
 	if err != nil {
 		fmt.Errorf("error encountered %v", err)
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/franela/goblin"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -29,11 +30,15 @@ func NewFakeResponseBodyGenerator() *FakeResponseBodyGenerator {
 var fakeResponseBodyGenerator *FakeResponseBodyGenerator
 var enanosHttpHandlerFactory *DefaultEnanosHttpHandlerFactory
 
+const (
+	PORT int = 8000
+)
+
 func TestMain(m *testing.M) {
 	fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
 	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator)
 	go func() {
-		StartEnanos(fakeResponseBodyGenerator, enanosHttpHandlerFactory)
+		StartEnanos(fakeResponseBodyGenerator, enanosHttpHandlerFactory, PORT)
 	}()
 	os.Exit(m.Run())
 }
@@ -78,7 +83,7 @@ func Test_Enanos(t *testing.T) {
 	g.Describe("Enanos Server:", func() {
 
 		url := func(path string) (fullPath string) {
-			fullPath = "http://localhost:8000" + path
+			fullPath = fmt.Sprintf("http://localhost:%d", PORT) + path
 			return
 		}
 
