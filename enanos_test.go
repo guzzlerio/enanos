@@ -60,9 +60,9 @@ func Test_ResponseBodyGenerator(t *testing.T) {
 	})
 }
 
-func PostJsonTo(url string) (resp *http.Response, err error) {
+func SendHelloWorldByHttpMethod(method string, url string) (resp *http.Response, err error) {
 	var jsonStr = []byte(`{"message":"hello world"}`)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	resp, err = client.Do(req)
@@ -89,7 +89,12 @@ func Test_Enanos(t *testing.T) {
 			})
 
 			g.It("POST returns 200", func() {
-				resp, _ := PostJsonTo(url("/default/happy"))
+				resp, _ := SendHelloWorldByHttpMethod("POST", url("/default/happy"))
+				assert.Equal(t, http.StatusOK, resp.StatusCode)
+			})
+
+			g.It("PUT returns 200", func() {
+				resp, _ := SendHelloWorldByHttpMethod("PUT", url("/default/happy"))
 				assert.Equal(t, http.StatusOK, resp.StatusCode)
 			})
 		})
