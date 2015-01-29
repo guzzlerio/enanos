@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"github.com/franela/goblin"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -59,6 +60,19 @@ func Test_ResponseBodyGenerator(t *testing.T) {
 	})
 }
 
+func PostJsonTo(url string) (resp *http.Response, err error) {
+	var jsonStr = []byte(`{"message":"hello world"}`)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err = client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return
+}
+
 func Test_Enanos(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Enanos Server:", func() {
@@ -71,6 +85,11 @@ func Test_Enanos(t *testing.T) {
 		g.Describe("Happy :", func() {
 			g.It("GET returns 200", func() {
 				resp, _ := http.Get(url("/default/happy"))
+				assert.Equal(t, http.StatusOK, resp.StatusCode)
+			})
+
+			g.It("POST returns 200", func() {
+				resp, _ := PostJsonTo(url("/default/happy"))
 				assert.Equal(t, http.StatusOK, resp.StatusCode)
 			})
 		})
