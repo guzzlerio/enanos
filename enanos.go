@@ -2,14 +2,25 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"net/http"
 	"time"
 )
 
-func random(min, max int) int {
-	rand.Seed(time.Now().Unix())
-	return rand.Intn(max-min) + min
+type Snoozer interface {
+	RandomSnoozeBetween(minDuration time.Duration, max time.Duration)
+}
+
+type RealSnoozer struct {
+	random Random
+}
+
+func (instance *RealSnoozer) RandomSnoozeBetween(min time.Duration, max time.Duration) {
+	randomSleep := instance.random.Duration(min, max)
+	time.Sleep(randomSleep)
+}
+
+func NewRealSnoozer(random Random) *RealSnoozer {
+	return &RealSnoozer{random}
 }
 
 type Config struct {
@@ -41,10 +52,12 @@ func NewDefaultResponseBodyGenerator(maxLength int) *DefaultResponseBodyGenerato
 type RandomResponseBodyGenerator struct {
 	minLength int
 	maxLength int
+	random    Random
 }
 
 func (instance *RandomResponseBodyGenerator) Generate() string {
-	var returnArray = make([]rune, random(instance.minLength, instance.maxLength))
+	randValue := instance.random.Int(instance.minLength, instance.maxLength)
+	var returnArray = make([]rune, randValue)
 	for i := range returnArray {
 		returnArray[i] = '-'
 	}
@@ -52,17 +65,20 @@ func (instance *RandomResponseBodyGenerator) Generate() string {
 }
 
 func NewRandomResponseBodyGenerator(minLength int, maxLength int) *RandomResponseBodyGenerator {
-	return &RandomResponseBodyGenerator{minLength, maxLength}
+	random := NewRealRandom()
+	return &RandomResponseBodyGenerator{minLength, maxLength, random}
 }
 
 type EnanosHttpHandlerFactory interface {
 	Happy(w http.ResponseWriter, r *http.Request)
 	Grumpy(w http.ResponseWriter, r *http.Request)
 	Sneezy(w http.ResponseWriter, r *http.Request)
+	Sleepy(w http.ResponseWriter, r *http.Request)
 }
 
 type DefaultEnanosHttpHandlerFactory struct {
 	responseBodyGenerator ResponseBodyGenerator
+	snoozer               Snoozer
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Happy(w http.ResponseWriter, r *http.Request) {
@@ -79,8 +95,15 @@ func (instance *DefaultEnanosHttpHandlerFactory) Sneezy(w http.ResponseWriter, r
 	w.Write([]byte(data))
 }
 
-func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator) *DefaultEnanosHttpHandlerFactory {
-	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator}
+func (instance *DefaultEnanosHttpHandlerFactory) Sleepy(w http.ResponseWriter, r *http.Request) {
+	instance.snoozer.RandomSnoozeBetween(1*time.Second, 60*time.Second)
+	w.WriteHeader(http.StatusOK)
+	data := instance.responseBodyGenerator.Generate()
+	w.Write([]byte(data))
+}
+
+func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, snoozer Snoozer) *DefaultEnanosHttpHandlerFactory {
+	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator, snoozer}
 }
 
 func StartEnanos(config Config) {
@@ -96,6 +119,9 @@ func StartEnanos(config Config) {
 	})
 	mux.HandleFunc("/default/sneezy", func(writer http.ResponseWriter, request *http.Request) {
 		config.httpHandlerFatory.Sneezy(writer, request)
+	})
+	mux.HandleFunc("/default/sleepy", func(writer http.ResponseWriter, request *http.Request) {
+		config.httpHandlerFatory.Sleepy(writer, request)
 	})
 	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", config.port), mux)
 	if err != nil {

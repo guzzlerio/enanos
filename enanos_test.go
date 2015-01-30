@@ -3,12 +3,14 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/REAANDREW/goclock"
 	"github.com/franela/goblin"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"testing"
+	"time"
 )
 
 type FakeResponseBodyGenerator struct {
@@ -27,8 +29,27 @@ func NewFakeResponseBodyGenerator() *FakeResponseBodyGenerator {
 	return &FakeResponseBodyGenerator{""}
 }
 
-var fakeResponseBodyGenerator *FakeResponseBodyGenerator
-var enanosHttpHandlerFactory *DefaultEnanosHttpHandlerFactory
+type FakeSnoozer struct {
+	duration time.Duration
+}
+
+func (instance *FakeSnoozer) RandomSnoozeBetween(min time.Duration, max time.Duration) {
+	time.Sleep(instance.duration)
+}
+
+func (instance *FakeSnoozer) SleepFor(duration time.Duration) {
+	instance.duration = duration
+}
+
+func NewFakeSnoozer() *FakeSnoozer {
+	return &FakeSnoozer{0}
+}
+
+var (
+	fakeResponseBodyGenerator *FakeResponseBodyGenerator
+	enanosHttpHandlerFactory  *DefaultEnanosHttpHandlerFactory
+	snoozer                   *FakeSnoozer
+)
 
 const (
 	PORT int = 8000
@@ -36,7 +57,8 @@ const (
 
 func TestMain(m *testing.M) {
 	fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
-	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator)
+	snoozer = NewFakeSnoozer()
+	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator, snoozer)
 	go func() {
 		config := Config{enanosHttpHandlerFactory, PORT, false}
 		StartEnanos(config)
@@ -166,15 +188,18 @@ func Test_Enanos(t *testing.T) {
 			})
 		})
 
-		/*
-			g.Describe("Sleepy :", func() {
-				g.It("GET returns 200 after a random time between a start and end duration", func() {
-					start := time.Now()
-					resp, _ := http.Get(url("/default/sleepy"))
-					end := time.Now()
-					assert.Equal(t, http.StatusOK, resp.StatusCode)
-				})
+		g.Describe("Sleepy :", func() {
+			g.It("GET returns 200 after a random time between a start and end duration", func() {
+				sleep := 10 * time.Millisecond
+				snoozer.SleepFor(sleep)
+				start := time.Now()
+				resp, _ := http.Get(url("/default/sleepy"))
+				end := time.Now()
+				difference := goclock.DurationDiff(start, end)
+				assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+				assert.True(t, difference >= sleep && difference <= sleep+(2*time.Millisecond))
 			})
-		*/
+		})
 	})
 }
