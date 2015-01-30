@@ -38,7 +38,8 @@ func TestMain(m *testing.M) {
 	fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
 	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator)
 	go func() {
-		StartEnanos(fakeResponseBodyGenerator, enanosHttpHandlerFactory, PORT, false)
+		config := Config{enanosHttpHandlerFactory, PORT, false}
+		StartEnanos(config)
 	}()
 	os.Exit(m.Run())
 }
@@ -164,5 +165,16 @@ func Test_Enanos(t *testing.T) {
 				assert.Equal(t, sample, string(body))
 			})
 		})
+
+		/*
+			g.Describe("Sleepy :", func() {
+				g.It("GET returns 200 after a random time between a start and end duration", func() {
+					start := time.Now()
+					resp, _ := http.Get(url("/default/sleepy"))
+					end := time.Now()
+					assert.Equal(t, http.StatusOK, resp.StatusCode)
+				})
+			})
+		*/
 	})
 }

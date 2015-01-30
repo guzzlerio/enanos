@@ -12,6 +12,12 @@ func random(min, max int) int {
 	return rand.Intn(max-min) + min
 }
 
+type Config struct {
+	httpHandlerFatory EnanosHttpHandlerFactory
+	port              int
+	debug             bool
+}
+
 type ResponseBodyGenerator interface {
 	Generate() string
 }
@@ -77,21 +83,21 @@ func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenera
 	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator}
 }
 
-func StartEnanos(responseBodyGenerator ResponseBodyGenerator, handlerFactory EnanosHttpHandlerFactory, port int, debug bool) {
+func StartEnanos(config Config) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/default/happy", func(writer http.ResponseWriter, request *http.Request) {
-		if debug {
+		if config.debug {
 			fmt.Println(fmt.Sprintf("%s - %d bytes - %s", request.RemoteAddr, request.ContentLength, request.URL))
 		}
-		handlerFactory.Happy(writer, request)
+		config.httpHandlerFatory.Happy(writer, request)
 	})
 	mux.HandleFunc("/default/grumpy", func(writer http.ResponseWriter, request *http.Request) {
-		handlerFactory.Grumpy(writer, request)
+		config.httpHandlerFatory.Grumpy(writer, request)
 	})
 	mux.HandleFunc("/default/sneezy", func(writer http.ResponseWriter, request *http.Request) {
-		handlerFactory.Sneezy(writer, request)
+		config.httpHandlerFatory.Sneezy(writer, request)
 	})
-	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", port), mux)
+	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", config.port), mux)
 	if err != nil {
 		fmt.Errorf("error encountered %v", err)
 	}
