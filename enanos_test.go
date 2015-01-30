@@ -13,6 +13,15 @@ import (
 	"time"
 )
 
+func ContainsInt(array []int, item int) bool {
+	for _, arrayItem := range array {
+		if item == arrayItem {
+			return true
+		}
+	}
+	return false
+}
+
 type FakeResponseBodyGenerator struct {
 	use string
 }
@@ -49,6 +58,7 @@ var (
 	fakeResponseBodyGenerator *FakeResponseBodyGenerator
 	enanosHttpHandlerFactory  *DefaultEnanosHttpHandlerFactory
 	snoozer                   *FakeSnoozer
+	random                    *FakeRandom
 )
 
 const (
@@ -57,8 +67,9 @@ const (
 
 func TestMain(m *testing.M) {
 	fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
+	random = NewFakeRandom()
 	snoozer = NewFakeSnoozer()
-	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator, snoozer)
+	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator, snoozer, random)
 	go func() {
 		config := Config{enanosHttpHandlerFactory, PORT, false}
 		StartEnanos(config)
@@ -198,8 +209,20 @@ func Test_Enanos(t *testing.T) {
 				difference := goclock.DurationDiff(start, end)
 				assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-				assert.True(t, difference >= sleep && difference <= sleep+(2*time.Millisecond))
+				assert.True(t, difference >= sleep && difference <= sleep+(5*time.Millisecond))
 			})
+		})
+
+		g.Describe("Bashful :", func() {
+			g.It("GET returns a 300 response code", func() {
+				random.ForIntUse(0)
+				resp, _ := http.Get(url("/default/bashful"))
+				assert.Equal(t, 300, resp.StatusCode)
+			})
+			g.It("GET returns a 301 response code")
+			g.It("GET returns a 302 response code")
+			g.It("GET returns a 304 response code")
+			g.It("GET returns a 305 response code")
 		})
 	})
 }

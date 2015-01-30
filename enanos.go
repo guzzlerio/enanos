@@ -74,11 +74,14 @@ type EnanosHttpHandlerFactory interface {
 	Grumpy(w http.ResponseWriter, r *http.Request)
 	Sneezy(w http.ResponseWriter, r *http.Request)
 	Sleepy(w http.ResponseWriter, r *http.Request)
+	Bashful(w http.ResponseWriter, r *http.Request)
 }
 
 type DefaultEnanosHttpHandlerFactory struct {
 	responseBodyGenerator ResponseBodyGenerator
 	snoozer               Snoozer
+	random                Random
+	responseCodes_300     []int
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Happy(w http.ResponseWriter, r *http.Request) {
@@ -102,8 +105,14 @@ func (instance *DefaultEnanosHttpHandlerFactory) Sleepy(w http.ResponseWriter, r
 	w.Write([]byte(data))
 }
 
-func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, snoozer Snoozer) *DefaultEnanosHttpHandlerFactory {
-	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator, snoozer}
+func (instance *DefaultEnanosHttpHandlerFactory) Bashful(w http.ResponseWriter, r *http.Request) {
+	randomIndex := instance.random.Int(0, len(instance.responseCodes_300))
+	w.WriteHeader(instance.responseCodes_300[randomIndex])
+}
+
+func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, snoozer Snoozer, random Random) *DefaultEnanosHttpHandlerFactory {
+	responseCodes_300 := []int{300}
+	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator, snoozer, random, responseCodes_300}
 }
 
 func StartEnanos(config Config) {
@@ -122,6 +131,9 @@ func StartEnanos(config Config) {
 	})
 	mux.HandleFunc("/default/sleepy", func(writer http.ResponseWriter, request *http.Request) {
 		config.httpHandlerFatory.Sleepy(writer, request)
+	})
+	mux.HandleFunc("/default/bashful", func(writer http.ResponseWriter, request *http.Request) {
+		config.httpHandlerFatory.Bashful(writer, request)
 	})
 	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", config.port), mux)
 	if err != nil {
