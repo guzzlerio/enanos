@@ -232,5 +232,9 @@ func Test_Enanos(t *testing.T) {
 				assert.Equal(t, 400, resp.StatusCode)
 			})
 		})
+
+		g.Describe("Doc :", func() {
+			g.It("GET kills the web server and returns after a set time period")
+		})
 	})
 }
