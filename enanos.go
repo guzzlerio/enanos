@@ -1,9 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"github.com/REAANDREW/goSimpleHttp"
 	"net/http"
+	"sync"
 	"time"
+)
+
+const (
+	STOPPED_EVENT_KEY string = "stopped"
 )
 
 type Snoozer interface {
@@ -124,30 +129,29 @@ func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenera
 }
 
 func StartEnanos(config Config) {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/default/happy", func(writer http.ResponseWriter, request *http.Request) {
-		if config.debug {
-			fmt.Println(fmt.Sprintf("%s - %d bytes - %s", request.RemoteAddr, request.ContentLength, request.URL))
-		}
-		config.httpHandlerFatory.Happy(writer, request)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	server := goSimpleHttp.NewSimpleHttpServer(config.port, "localhost")
+	server.OnStopped(func() {
+		wg.Done()
 	})
-	mux.HandleFunc("/default/grumpy", func(writer http.ResponseWriter, request *http.Request) {
-		config.httpHandlerFatory.Grumpy(writer, request)
-	})
-	mux.HandleFunc("/default/sneezy", func(writer http.ResponseWriter, request *http.Request) {
-		config.httpHandlerFatory.Sneezy(writer, request)
-	})
-	mux.HandleFunc("/default/sleepy", func(writer http.ResponseWriter, request *http.Request) {
-		config.httpHandlerFatory.Sleepy(writer, request)
-	})
-	mux.HandleFunc("/default/bashful", func(writer http.ResponseWriter, request *http.Request) {
-		config.httpHandlerFatory.Bashful(writer, request)
-	})
-	mux.HandleFunc("/default/dopey", func(writer http.ResponseWriter, request *http.Request) {
-		config.httpHandlerFatory.Dopey(writer, request)
-	})
-	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", config.port), mux)
-	if err != nil {
-		fmt.Errorf("error encountered %v", err)
+
+	urlToHandlers := map[string]goSimpleHttp.HttpHandler{
+		"/default/happy":   config.httpHandlerFatory.Happy,
+		"/default/grumpy":  config.httpHandlerFatory.Grumpy,
+		"/default/sneezy":  config.httpHandlerFatory.Sneezy,
+		"/default/sleepy":  config.httpHandlerFatory.Sleepy,
+		"/default/bashful": config.httpHandlerFatory.Bashful,
+		"/default/dopey":   config.httpHandlerFatory.Dopey,
 	}
+
+	for key, value := range urlToHandlers {
+		server.Get(key, value)
+		server.Post(key, value)
+		server.Put(key, value)
+		server.Delete(key, value)
+	}
+
+	server.Start()
+	wg.Wait()
 }
