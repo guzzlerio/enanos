@@ -145,11 +145,6 @@ func Test_Enanos(t *testing.T) {
 				resp, _ := SendHelloWorldByHttpMethod("DELETE", happyUrl)
 				assert.Equal(t, http.StatusOK, resp.StatusCode)
 			})
-
-			g.It("Any Random Verb returns 200", func() {
-				resp, _ := SendHelloWorldByHttpMethod("TALULA", happyUrl)
-				assert.Equal(t, http.StatusOK, resp.StatusCode)
-			})
 		})
 
 		g.Describe("Grumpy :", func() {
@@ -177,10 +172,6 @@ func Test_Enanos(t *testing.T) {
 				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 			})
 
-			g.It("Any Random Verb returns 500", func() {
-				resp, _ := SendHelloWorldByHttpMethod("TALULA", grumpyUrl)
-				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-			})
 		})
 
 		g.Describe("Sneezy :", func() {
