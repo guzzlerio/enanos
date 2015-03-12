@@ -229,57 +229,25 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Bashful :", func() {
-			g.It("GET returns a 300 response code", func() {
-				code := 300
-				responseCodeGenerator.Use(code)
-				resp, _ := http.Get(url("/default/bashful"))
-				assert.Equal(t, code, resp.StatusCode)
-			})
-			g.It("GET returns a 301 response code", func() {
-				code := 301
-				responseCodeGenerator.Use(code)
-				resp, _ := http.Get(url("/default/bashful"))
-				assert.Equal(t, code, resp.StatusCode)
-			})
-			g.It("GET returns a 302 response code", func() {
-				code := 302
-				responseCodeGenerator.Use(code)
-				resp, _ := http.Get(url("/default/bashful"))
-				assert.Equal(t, code, resp.StatusCode)
-			})
-			g.It("GET returns a 303 response code", func() {
-				code := 303
-				responseCodeGenerator.Use(code)
-				resp, _ := http.Get(url("/default/bashful"))
-				assert.Equal(t, code, resp.StatusCode)
-			})
-			g.It("GET returns a 304 response code", func() {
-				code := 304
-				responseCodeGenerator.Use(code)
-				resp, _ := http.Get(url("/default/bashful"))
-				assert.Equal(t, code, resp.StatusCode)
-			})
-			g.It("GET returns a 305 response code", func() {
-				code := 305
-				responseCodeGenerator.Use(code)
-				resp, _ := http.Get(url("/default/bashful"))
-				assert.Equal(t, code, resp.StatusCode)
-			})
-			g.It("GET returns a 307 response code", func() {
-				code := 307
-				responseCodeGenerator.Use(code)
-				resp, _ := http.Get(url("/default/bashful"))
-				assert.Equal(t, code, resp.StatusCode)
-			})
+			codes := []int{300, 301, 302, 303, 304, 305, 307}
+			for _, code := range codes {
+				g.It(fmt.Sprintf("GET returns a %d response code", code), func() {
+					responseCodeGenerator.Use(code)
+					resp, _ := http.Get(url("/default/bashful"))
+					assert.Equal(t, code, resp.StatusCode)
+				})
+			}
 		})
 
 		g.Describe("Dopey :", func() {
-			g.It("GET returns a 400 response code", func() {
-				code := 400
-				responseCodeGenerator.Use(code)
-				resp, _ := http.Get(url("/default/dopey"))
-				assert.Equal(t, code, resp.StatusCode)
-			})
+			codes := []int{400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417}
+			for _, code := range codes {
+				g.It(fmt.Sprintf("GET returns a %d response code", code), func() {
+					responseCodeGenerator.Use(code)
+					resp, _ := http.Get(url("/default/dopey"))
+					assert.Equal(t, code, resp.StatusCode)
+				})
+			}
 		})
 
 		g.Describe("Doc :", func() {
