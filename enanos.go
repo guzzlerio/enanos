@@ -148,7 +148,7 @@ func (instance *DefaultEnanosHttpHandlerFactory) Dopey(w http.ResponseWriter, r 
 }
 
 func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, responseCodeGenFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer, random Random) *DefaultEnanosHttpHandlerFactory {
-	responseCodes_300 := responseCodeGenFactory([]int{300})
+	responseCodes_300 := responseCodeGenFactory([]int{300, 301, 302})
 	responseCodes_400 := responseCodeGenFactory([]int{400})
 	responseCodes_500 := responseCodeGenFactory([]int{500})
 	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator, snoozer, random, responseCodes_300, responseCodes_400, responseCodes_500}
