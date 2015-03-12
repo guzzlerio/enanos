@@ -58,7 +58,7 @@ type FakeSnoozer struct {
 	duration time.Duration
 }
 
-func (instance *FakeSnoozer) RandomSnoozeBetween(min time.Duration, max time.Duration) {
+func (instance *FakeSnoozer) RandomSnooze() {
 	time.Sleep(instance.duration)
 }
 

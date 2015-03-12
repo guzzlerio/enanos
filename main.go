@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gopkg.in/alecthomas/kingpin.v1"
+	"time"
 )
 
 const (
@@ -10,8 +11,10 @@ const (
 )
 
 var (
-	debug = kingpin.Flag("debug", "Enable debug mode.").Bool()
-	port  = kingpin.Flag("port", "the port to host the server on").Default("8000").Short('p').OverrideDefaultFromEnvar(ENV_ENANOS_PORT).Int()
+	debug    = kingpin.Flag("debug", "Enable debug mode.").Bool()
+	port     = kingpin.Flag("port", "the port to host the server on").Default("8000").Short('p').OverrideDefaultFromEnvar(ENV_ENANOS_PORT).Int()
+	minSleep = kingpin.Flag("min-sleep", "the minimum sleep time for sleepy in milliseconds").Default("1000").Int()
+	maxSleep = kingpin.Flag("max-sleep", "the maximum sleep time for sleepy in milliseconds").Default("60000").Int()
 )
 
 func responseCodeGeneratorFactory(codes []int) ResponseCodeGenerator {
@@ -23,7 +26,7 @@ func main() {
 	kingpin.Parse()
 	responseBodyGenerator := NewRandomResponseBodyGenerator(10, 10000)
 	random := NewRealRandom()
-	snoozer := NewRealSnoozer(random)
+	snoozer := NewRealSnoozer(time.Duration(*minSleep)*time.Millisecond, time.Duration(*maxSleep)*time.Millisecond)
 	handleFactory := NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator, responseCodeGeneratorFactory, snoozer, random)
 	config := Config{handleFactory, *port, *debug}
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))

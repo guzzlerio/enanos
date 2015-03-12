@@ -38,20 +38,22 @@ func NewRandomResponseCodeGenerator(responseCodes []int) *RandomResponseCodeGene
 }
 
 type Snoozer interface {
-	RandomSnoozeBetween(minDuration time.Duration, max time.Duration)
+	RandomSnooze()
 }
 
 type RealSnoozer struct {
+	Min    time.Duration
+	Max    time.Duration
 	random Random
 }
 
-func (instance *RealSnoozer) RandomSnoozeBetween(min time.Duration, max time.Duration) {
-	randomSleep := instance.random.Duration(min, max)
+func (instance *RealSnoozer) RandomSnooze() {
+	randomSleep := instance.random.Duration(instance.Min, instance.Max)
 	time.Sleep(randomSleep)
 }
 
-func NewRealSnoozer(random Random) *RealSnoozer {
-	return &RealSnoozer{random}
+func NewRealSnoozer(min time.Duration, max time.Duration) *RealSnoozer {
+	return &RealSnoozer{min, max, &RealRandom{}}
 }
 
 type Config struct {
@@ -134,7 +136,7 @@ func (instance *DefaultEnanosHttpHandlerFactory) Sneezy(w http.ResponseWriter, r
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Sleepy(w http.ResponseWriter, r *http.Request) {
-	instance.snoozer.RandomSnoozeBetween(1*time.Second, 60*time.Second)
+	instance.snoozer.RandomSnooze()
 	w.WriteHeader(http.StatusOK)
 	data := instance.responseBodyGenerator.Generate()
 	w.Write([]byte(data))
