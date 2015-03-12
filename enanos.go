@@ -136,7 +136,7 @@ func (instance *DefaultEnanosHttpHandlerFactory) Sleepy(w http.ResponseWriter, r
 
 func (instance *DefaultEnanosHttpHandlerFactory) Bashful(w http.ResponseWriter, r *http.Request) {
 	code := instance.responseCodes_300.Generate()
-	if code == 301 || code == 302 || code == 303 {
+	if code == 301 || code == 302 || code == 303 || code == 307 {
 		w.Header().Set("location", "/default/bashful")
 	}
 	w.WriteHeader(code)
@@ -148,7 +148,7 @@ func (instance *DefaultEnanosHttpHandlerFactory) Dopey(w http.ResponseWriter, r 
 }
 
 func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, responseCodeGenFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer, random Random) *DefaultEnanosHttpHandlerFactory {
-	responseCodes_300 := responseCodeGenFactory([]int{300, 301, 302})
+	responseCodes_300 := responseCodeGenFactory([]int{300, 301, 302, 303, 304, 305, 307})
 	responseCodes_400 := responseCodeGenFactory([]int{400})
 	responseCodes_500 := responseCodeGenFactory([]int{500})
 	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator, snoozer, random, responseCodes_300, responseCodes_400, responseCodes_500}
