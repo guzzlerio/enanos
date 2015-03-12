@@ -131,7 +131,6 @@ func SendHelloWorldByHttpMethod(method string, url string) (resp *http.Response,
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 	return
 }
 
@@ -196,35 +195,26 @@ func Test_Enanos(t *testing.T) {
 				resp, _ := SendHelloWorldByHttpMethod("DELETE", grumpyUrl)
 				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 			})
-
 		})
 
 		g.Describe("Sneezy :", func() {
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					g.It(fmt.Sprintf("%s returns 200", method), func() {
-						resp, _ := http.Get(url("/default/sneezy"))
+						resp, _ := SendHelloWorldByHttpMethod(method, url("/default/sneezy"))
+						defer resp.Body.Close()
 						assert.Equal(t, http.StatusOK, resp.StatusCode)
 					})
 				})
+				g.It(fmt.Sprintf("%s returns random response body", method), func() {
+					sample := "foobar"
+					fakeResponseBodyGenerator.UseString(sample)
+					resp, _ := SendHelloWorldByHttpMethod(method, url("/default/sneezy"))
+					defer resp.Body.Close()
+					body, _ := ioutil.ReadAll(resp.Body)
+					assert.Equal(t, sample, string(body))
+				})
 			}
-			g.It("GET returns random response body", func() {
-				sample := "foobar"
-				fakeResponseBodyGenerator.UseString(sample)
-				resp, _ := http.Get(url("/default/sneezy"))
-				defer resp.Body.Close()
-				body, _ := ioutil.ReadAll(resp.Body)
-				assert.Equal(t, sample, string(body))
-			})
-
-			g.It("GET returns random response body", func() {
-				sample := "foobar"
-				fakeResponseBodyGenerator.UseString(sample)
-				resp, _ := http.Get(url("/default/sneezy"))
-				defer resp.Body.Close()
-				body, _ := ioutil.ReadAll(resp.Body)
-				assert.Equal(t, sample, string(body))
-			})
 		})
 
 		g.Describe("Sleepy :", func() {
@@ -235,6 +225,7 @@ func Test_Enanos(t *testing.T) {
 						snoozer.SleepFor(sleep)
 						start := time.Now()
 						resp, _ := SendHelloWorldByHttpMethod(method, url("/default/sleepy"))
+						defer resp.Body.Close()
 						end := time.Now()
 						difference := goclock.DurationDiff(start, end)
 						assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -253,6 +244,7 @@ func Test_Enanos(t *testing.T) {
 						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
 							responseCodeGenerator.Use(code)
 							resp, _ := SendHelloWorldByHttpMethod(method, url("/default/bashful"))
+							defer resp.Body.Close()
 							assert.Equal(t, code, resp.StatusCode)
 						})
 					}
@@ -268,6 +260,7 @@ func Test_Enanos(t *testing.T) {
 						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
 							responseCodeGenerator.Use(code)
 							resp, _ := SendHelloWorldByHttpMethod(method, url("/default/dopey"))
+							defer resp.Body.Close()
 							assert.Equal(t, code, resp.StatusCode)
 						})
 					}
