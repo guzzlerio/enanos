@@ -216,17 +216,21 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Sleepy :", func() {
-			g.It("GET returns 200 after a random time between a start and end duration", func() {
-				sleep := 10 * time.Millisecond
-				snoozer.SleepFor(sleep)
-				start := time.Now()
-				resp, _ := http.Get(url("/default/sleepy"))
-				end := time.Now()
-				difference := goclock.DurationDiff(start, end)
-				assert.Equal(t, http.StatusOK, resp.StatusCode)
+			for _, method := range METHODS {
+				g.Describe(fmt.Sprintf("%s :", method), func() {
+					g.It(fmt.Sprintf("%s returns 200 after a random time between a start and end duration", method), func() {
+						sleep := 10 * time.Millisecond
+						snoozer.SleepFor(sleep)
+						start := time.Now()
+						resp, _ := SendHelloWorldByHttpMethod(method, url("/default/sleepy"))
+						end := time.Now()
+						difference := goclock.DurationDiff(start, end)
+						assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-				assert.True(t, difference >= sleep && difference <= sleep+(5*time.Millisecond))
-			})
+						assert.True(t, difference >= sleep && difference <= sleep+(5*time.Millisecond))
+					})
+				})
+			}
 		})
 
 		g.Describe("Bashful :", func() {
@@ -236,7 +240,7 @@ func Test_Enanos(t *testing.T) {
 					for _, code := range codes {
 						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
 							responseCodeGenerator.Use(code)
-							resp, _ := http.Get(url("/default/bashful"))
+							resp, _ := SendHelloWorldByHttpMethod(method, url("/default/bashful"))
 							assert.Equal(t, code, resp.StatusCode)
 						})
 					}
