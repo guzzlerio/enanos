@@ -76,6 +76,7 @@ var (
 	snoozer                   *FakeSnoozer
 	random                    *FakeRandom
 	responseCodeGenerator     *FakeResponseCodeGenerator
+	METHODS                   []string = []string{"GET", "POST", "PUT", "DELETE"}
 )
 
 func factory(codes []int) ResponseCodeGenerator {
@@ -150,7 +151,7 @@ func Test_Enanos(t *testing.T) {
 				responseCodeGenerator.Use(200)
 			})
 			g.It("GET returns 200", func() {
-				resp, _ := http.Get(happyUrl)
+				resp, _ := SendHelloWorldByHttpMethod("GET", happyUrl)
 				assert.Equal(t, http.StatusOK, resp.StatusCode)
 			})
 
@@ -241,11 +242,15 @@ func Test_Enanos(t *testing.T) {
 
 		g.Describe("Dopey :", func() {
 			codes := []int{400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417}
-			for _, code := range codes {
-				g.It(fmt.Sprintf("GET returns a %d response code", code), func() {
-					responseCodeGenerator.Use(code)
-					resp, _ := http.Get(url("/default/dopey"))
-					assert.Equal(t, code, resp.StatusCode)
+			for _, method := range METHODS {
+				g.Describe(fmt.Sprintf("%s :", method), func() {
+					for _, code := range codes {
+						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
+							responseCodeGenerator.Use(code)
+							resp, _ := SendHelloWorldByHttpMethod(method, url("/default/dopey"))
+							assert.Equal(t, code, resp.StatusCode)
+						})
+					}
 				})
 			}
 		})
