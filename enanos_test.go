@@ -274,13 +274,11 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Dopey :", func() {
-			g.Before(func() {
-				responseCodeGenerator.Use(400)
-			})
 			g.It("GET returns a 400 response code", func() {
-				random.ForIntUse(0)
+				code := 400
+				responseCodeGenerator.Use(code)
 				resp, _ := http.Get(url("/default/dopey"))
-				assert.Equal(t, 400, resp.StatusCode)
+				assert.Equal(t, code, resp.StatusCode)
 			})
 		})
 
