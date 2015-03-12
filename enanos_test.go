@@ -253,7 +253,12 @@ func Test_Enanos(t *testing.T) {
 				resp, _ := http.Get(url("/default/bashful"))
 				assert.Equal(t, code, resp.StatusCode)
 			})
-			g.It("GET returns a 305 response code")
+			g.It("GET returns a 305 response code", func() {
+				code := 305
+				responseCodeGenerator.Use(code)
+				resp, _ := http.Get(url("/default/bashful"))
+				assert.Equal(t, code, resp.StatusCode)
+			})
 		})
 
 		g.Describe("Dopey :", func() {
