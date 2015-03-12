@@ -156,7 +156,7 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Grumpy :", func() {
-			codes := []int{500, 501, 502, 503, 504, 505}
+			codes := responseCodes_500
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					for _, code := range codes {
@@ -211,7 +211,7 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Bashful :", func() {
-			codes := []int{300, 301, 302, 303, 304, 305, 307}
+			codes := responseCodes_300
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					for _, code := range codes {
@@ -227,7 +227,7 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Dopey :", func() {
-			codes := []int{400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417}
+			codes := responseCodes_400
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					for _, code := range codes {
