@@ -231,11 +231,15 @@ func Test_Enanos(t *testing.T) {
 
 		g.Describe("Bashful :", func() {
 			codes := []int{300, 301, 302, 303, 304, 305, 307}
-			for _, code := range codes {
-				g.It(fmt.Sprintf("GET returns a %d response code", code), func() {
-					responseCodeGenerator.Use(code)
-					resp, _ := http.Get(url("/default/bashful"))
-					assert.Equal(t, code, resp.StatusCode)
+			for _, method := range METHODS {
+				g.Describe(fmt.Sprintf("%s :", method), func() {
+					for _, code := range codes {
+						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
+							responseCodeGenerator.Use(code)
+							resp, _ := http.Get(url("/default/bashful"))
+							assert.Equal(t, code, resp.StatusCode)
+						})
+					}
 				})
 			}
 		})
