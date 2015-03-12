@@ -11,6 +11,26 @@ const (
 	STOPPED_EVENT_KEY string = "stopped"
 )
 
+type ResponseCodeGenerator interface {
+	Generate() int
+}
+
+type RandomResponseCodeGenerator struct {
+	responseCodes []int
+	randomGen     Random
+}
+
+func (instance *RandomResponseCodeGenerator) Generate() int {
+	from := 0
+	to := len(instance.responseCodes)
+	index := instance.randomGen.Int(from, to)
+	return instance.responseCodes[index]
+}
+
+func NewRandomResponseCodeGenerator(responseCodes []int) *RandomResponseCodeGenerator {
+	return &RandomResponseCodeGenerator{responseCodes, NewRealRandom()}
+}
+
 type Snoozer interface {
 	RandomSnoozeBetween(minDuration time.Duration, max time.Duration)
 }
@@ -87,8 +107,9 @@ type DefaultEnanosHttpHandlerFactory struct {
 	responseBodyGenerator ResponseBodyGenerator
 	snoozer               Snoozer
 	random                Random
-	responseCodes_300     []int
-	responseCodes_400     []int
+	responseCodes_300     ResponseCodeGenerator
+	responseCodes_400     ResponseCodeGenerator
+	responseCodes_500     ResponseCodeGenerator
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Happy(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +117,8 @@ func (instance *DefaultEnanosHttpHandlerFactory) Happy(w http.ResponseWriter, r 
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Grumpy(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusInternalServerError)
+	code := instance.responseCodes_500.Generate()
+	w.WriteHeader(code)
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Sneezy(w http.ResponseWriter, r *http.Request) {
@@ -113,19 +135,20 @@ func (instance *DefaultEnanosHttpHandlerFactory) Sleepy(w http.ResponseWriter, r
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Bashful(w http.ResponseWriter, r *http.Request) {
-	randomIndex := instance.random.Int(0, len(instance.responseCodes_300))
-	w.WriteHeader(instance.responseCodes_300[randomIndex])
+	code := instance.responseCodes_300.Generate()
+	w.WriteHeader(code)
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Dopey(w http.ResponseWriter, r *http.Request) {
-	randomIndex := instance.random.Int(0, len(instance.responseCodes_400))
-	w.WriteHeader(instance.responseCodes_400[randomIndex])
+	code := instance.responseCodes_400.Generate()
+	w.WriteHeader(code)
 }
 
-func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, snoozer Snoozer, random Random) *DefaultEnanosHttpHandlerFactory {
-	responseCodes_300 := []int{300}
-	responseCodes_400 := []int{400}
-	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator, snoozer, random, responseCodes_300, responseCodes_400}
+func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, responseCodeGenFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer, random Random) *DefaultEnanosHttpHandlerFactory {
+	responseCodes_300 := responseCodeGenFactory([]int{300})
+	responseCodes_400 := responseCodeGenFactory([]int{400})
+	responseCodes_500 := responseCodeGenFactory([]int{500})
+	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator, snoozer, random, responseCodes_300, responseCodes_400, responseCodes_500}
 }
 
 func StartEnanos(config Config) {

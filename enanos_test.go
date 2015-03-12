@@ -22,6 +22,22 @@ func ContainsInt(array []int, item int) bool {
 	return false
 }
 
+type FakeResponseCodeGenerator struct {
+	use int
+}
+
+func (instance *FakeResponseCodeGenerator) Use(value int) {
+	instance.use = value
+}
+
+func (instance *FakeResponseCodeGenerator) Generate() int {
+	return instance.use
+}
+
+func NewFakeResponseCodeGenerator() *FakeResponseCodeGenerator {
+	return &FakeResponseCodeGenerator{}
+}
+
 type FakeResponseBodyGenerator struct {
 	use string
 }
@@ -59,7 +75,12 @@ var (
 	enanosHttpHandlerFactory  *DefaultEnanosHttpHandlerFactory
 	snoozer                   *FakeSnoozer
 	random                    *FakeRandom
+	responseCodeGenerator     *FakeResponseCodeGenerator
 )
+
+func factory(codes []int) ResponseCodeGenerator {
+	return responseCodeGenerator
+}
 
 const (
 	PORT int = 8000
@@ -69,7 +90,8 @@ func TestMain(m *testing.M) {
 	fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
 	random = NewFakeRandom()
 	snoozer = NewFakeSnoozer()
-	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator, snoozer, random)
+	responseCodeGenerator = NewFakeResponseCodeGenerator()
+	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator, factory, snoozer, random)
 	go func() {
 		config := Config{enanosHttpHandlerFactory, PORT, false}
 		StartEnanos(config)
@@ -125,6 +147,7 @@ func Test_Enanos(t *testing.T) {
 			var happyUrl string
 			g.Before(func() {
 				happyUrl = url("/default/happy")
+				responseCodeGenerator.Use(200)
 			})
 			g.It("GET returns 200", func() {
 				resp, _ := http.Get(happyUrl)
@@ -151,6 +174,7 @@ func Test_Enanos(t *testing.T) {
 			var grumpyUrl string
 			g.Before(func() {
 				grumpyUrl = url("/default/grumpy")
+				responseCodeGenerator.Use(500)
 			})
 			g.It("GET returns 500", func() {
 				resp, _ := http.Get(grumpyUrl)
@@ -205,6 +229,9 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Bashful :", func() {
+			g.Before(func() {
+				responseCodeGenerator.Use(300)
+			})
 			g.It("GET returns a 300 response code", func() {
 				random.ForIntUse(0)
 				resp, _ := http.Get(url("/default/bashful"))
@@ -217,6 +244,9 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Dopey :", func() {
+			g.Before(func() {
+				responseCodeGenerator.Use(400)
+			})
 			g.It("GET returns a 400 response code", func() {
 				random.ForIntUse(0)
 				resp, _ := http.Get(url("/default/dopey"))

@@ -14,13 +14,17 @@ var (
 	port  = kingpin.Flag("port", "the port to host the server on").Default("8000").Short('p').OverrideDefaultFromEnvar(ENV_ENANOS_PORT).Int()
 )
 
+func responseCodeGeneratorFactory(codes []int) ResponseCodeGenerator {
+	return NewRandomResponseCodeGenerator(codes)
+}
+
 func main() {
 	kingpin.Version("0.0.1")
 	kingpin.Parse()
 	responseBodyGenerator := NewRandomResponseBodyGenerator(10, 10000)
 	random := NewRealRandom()
 	snoozer := NewRealSnoozer(random)
-	handleFactory := NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator, snoozer, random)
+	handleFactory := NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator, responseCodeGeneratorFactory, snoozer, random)
 	config := Config{handleFactory, *port, *debug}
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
 	StartEnanos(config)
