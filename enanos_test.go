@@ -144,30 +144,15 @@ func Test_Enanos(t *testing.T) {
 		}
 
 		g.Describe("Happy :", func() {
-			var happyUrl string
-			g.Before(func() {
-				happyUrl = url("/default/happy")
-				responseCodeGenerator.Use(200)
-			})
-			g.It("GET returns 200", func() {
-				resp, _ := SendHelloWorldByHttpMethod("GET", happyUrl)
-				assert.Equal(t, http.StatusOK, resp.StatusCode)
-			})
-
-			g.It("POST returns 200", func() {
-				resp, _ := SendHelloWorldByHttpMethod("POST", happyUrl)
-				assert.Equal(t, http.StatusOK, resp.StatusCode)
-			})
-
-			g.It("PUT returns 200", func() {
-				resp, _ := SendHelloWorldByHttpMethod("PUT", happyUrl)
-				assert.Equal(t, http.StatusOK, resp.StatusCode)
-			})
-
-			g.It("DELETE returns 200", func() {
-				resp, _ := SendHelloWorldByHttpMethod("DELETE", happyUrl)
-				assert.Equal(t, http.StatusOK, resp.StatusCode)
-			})
+			for _, method := range METHODS {
+				g.Describe(fmt.Sprintf("%s :", method), func() {
+					g.It(fmt.Sprintf("%s returns 200", method), func() {
+						resp, _ := SendHelloWorldByHttpMethod(method, url("/default/happy"))
+						defer resp.Body.Close()
+						assert.Equal(t, http.StatusOK, resp.StatusCode)
+					})
+				})
+			}
 		})
 
 		g.Describe("Grumpy :", func() {
