@@ -200,9 +200,21 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Sneezy :", func() {
-			g.It("GET returns 200", func() {
+			for _, method := range METHODS {
+				g.Describe(fmt.Sprintf("%s :", method), func() {
+					g.It(fmt.Sprintf("%s returns 200", method), func() {
+						resp, _ := http.Get(url("/default/sneezy"))
+						assert.Equal(t, http.StatusOK, resp.StatusCode)
+					})
+				})
+			}
+			g.It("GET returns random response body", func() {
+				sample := "foobar"
+				fakeResponseBodyGenerator.UseString(sample)
 				resp, _ := http.Get(url("/default/sneezy"))
-				assert.Equal(t, http.StatusOK, resp.StatusCode)
+				defer resp.Body.Close()
+				body, _ := ioutil.ReadAll(resp.Body)
+				assert.Equal(t, sample, string(body))
 			})
 
 			g.It("GET returns random response body", func() {
