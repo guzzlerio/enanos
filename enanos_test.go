@@ -171,30 +171,19 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Grumpy :", func() {
-			var grumpyUrl string
-			g.Before(func() {
-				grumpyUrl = url("/default/grumpy")
-				responseCodeGenerator.Use(500)
-			})
-			g.It("GET returns 500", func() {
-				resp, _ := http.Get(grumpyUrl)
-				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-			})
-
-			g.It("POST returns 500", func() {
-				resp, _ := SendHelloWorldByHttpMethod("POST", grumpyUrl)
-				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-			})
-
-			g.It("PUT returns 500", func() {
-				resp, _ := SendHelloWorldByHttpMethod("PUT", grumpyUrl)
-				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-			})
-
-			g.It("DELETE returns 500", func() {
-				resp, _ := SendHelloWorldByHttpMethod("DELETE", grumpyUrl)
-				assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-			})
+			codes := []int{500, 501, 502, 503, 504, 505}
+			for _, method := range METHODS {
+				g.Describe(fmt.Sprintf("%s :", method), func() {
+					for _, code := range codes {
+						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
+							responseCodeGenerator.Use(code)
+							resp, _ := SendHelloWorldByHttpMethod(method, url("/default/grumpy"))
+							defer resp.Body.Close()
+							assert.Equal(t, code, resp.StatusCode)
+						})
+					}
+				})
+			}
 		})
 
 		g.Describe("Sneezy :", func() {
