@@ -136,6 +136,9 @@ func (instance *DefaultEnanosHttpHandlerFactory) Sleepy(w http.ResponseWriter, r
 
 func (instance *DefaultEnanosHttpHandlerFactory) Bashful(w http.ResponseWriter, r *http.Request) {
 	code := instance.responseCodes_300.Generate()
+	if code == 301 {
+		w.Header().Set("location", "/default/bashful")
+	}
 	w.WriteHeader(code)
 }
 

@@ -229,15 +229,18 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Bashful :", func() {
-			g.Before(func() {
-				responseCodeGenerator.Use(300)
-			})
 			g.It("GET returns a 300 response code", func() {
+				responseCodeGenerator.Use(300)
 				random.ForIntUse(0)
 				resp, _ := http.Get(url("/default/bashful"))
 				assert.Equal(t, 300, resp.StatusCode)
 			})
-			g.It("GET returns a 301 response code")
+			g.It("GET returns a 301 response code", func() {
+				responseCodeGenerator.Use(301)
+				random.ForIntUse(0)
+				resp, _ := http.Get(url("/default/bashful"))
+				assert.Equal(t, 301, resp.StatusCode)
+			})
 			g.It("GET returns a 302 response code")
 			g.It("GET returns a 304 response code")
 			g.It("GET returns a 305 response code")
