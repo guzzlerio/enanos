@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -244,6 +245,22 @@ func Test_Enanos(t *testing.T) {
 
 		g.Describe("Doc :", func() {
 			g.It("GET kills the web server and returns after a set time period")
+		})
+
+		g.Describe("Defined", func() {
+			codes := responseCodes_400
+			for _, method := range METHODS {
+				g.Describe(fmt.Sprintf("%s :", method), func() {
+					for _, code := range codes {
+						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
+							responseCodeGenerator.Use(code)
+							resp, _ := SendHelloWorldByHttpMethod(method, url("/defined?code="+strconv.Itoa(code)))
+							defer resp.Body.Close()
+							assert.Equal(t, code, resp.StatusCode)
+						})
+					}
+				})
+			}
 		})
 	})
 }

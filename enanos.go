@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/REAANDREW/goSimpleHttp"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -109,6 +110,7 @@ type EnanosHttpHandlerFactory interface {
 	Wait(w http.ResponseWriter, r *http.Request)
 	Redirect(w http.ResponseWriter, r *http.Request)
 	Client_Error(w http.ResponseWriter, r *http.Request)
+	Defined(w http.ResponseWriter, r *http.Request)
 }
 
 type DefaultEnanosHttpHandlerFactory struct {
@@ -155,6 +157,14 @@ func (instance *DefaultEnanosHttpHandlerFactory) Client_Error(w http.ResponseWri
 	w.WriteHeader(code)
 }
 
+func (instance *DefaultEnanosHttpHandlerFactory) Defined(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	if code != "" {
+		intCode, _ := strconv.Atoi(code)
+		w.WriteHeader(intCode)
+	}
+}
+
 func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, responseCodeGenFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer, random Random) *DefaultEnanosHttpHandlerFactory {
 	responseCodes_300 := responseCodeGenFactory(responseCodes_300)
 	responseCodes_400 := responseCodeGenFactory(responseCodes_400)
@@ -177,6 +187,7 @@ func StartEnanos(config Config) {
 		"/wait":         config.httpHandlerFatory.Wait,
 		"/redirect":     config.httpHandlerFatory.Redirect,
 		"/client_error": config.httpHandlerFatory.Client_Error,
+		"/defined":      config.httpHandlerFatory.Defined,
 	}
 
 	for key, value := range urlToHandlers {
