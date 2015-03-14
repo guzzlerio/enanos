@@ -23,46 +23,6 @@ type Config struct {
 	debug             bool
 }
 
-type ResponseBodyGenerator interface {
-	Generate() string
-}
-
-type DefaultResponseBodyGenerator struct {
-	maxLength int
-}
-
-func (instance *DefaultResponseBodyGenerator) Generate() string {
-	var returnArray = make([]rune, instance.maxLength)
-	for i := range returnArray {
-		returnArray[i] = '-'
-	}
-	return string(returnArray)
-}
-
-func NewDefaultResponseBodyGenerator(maxLength int) *DefaultResponseBodyGenerator {
-	return &DefaultResponseBodyGenerator{maxLength}
-}
-
-type RandomResponseBodyGenerator struct {
-	minLength int
-	maxLength int
-	random    Random
-}
-
-func (instance *RandomResponseBodyGenerator) Generate() string {
-	randValue := instance.random.Int(instance.minLength, instance.maxLength)
-	var returnArray = make([]rune, randValue)
-	for i := range returnArray {
-		returnArray[i] = '-'
-	}
-	return string(returnArray)
-}
-
-func NewRandomResponseBodyGenerator(minLength int, maxLength int) *RandomResponseBodyGenerator {
-	random := NewRealRandom()
-	return &RandomResponseBodyGenerator{minLength, maxLength, random}
-}
-
 type EnanosHttpHandlerFactory interface {
 	Success(w http.ResponseWriter, r *http.Request)
 	Server_Error(w http.ResponseWriter, r *http.Request)

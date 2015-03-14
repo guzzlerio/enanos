@@ -23,22 +23,6 @@ func ContainsInt(array []int, item int) bool {
 	return false
 }
 
-type FakeResponseBodyGenerator struct {
-	use string
-}
-
-func (instance *FakeResponseBodyGenerator) Generate() string {
-	return instance.use
-}
-
-func (instance *FakeResponseBodyGenerator) UseString(value string) {
-	instance.use = value
-}
-
-func NewFakeResponseBodyGenerator() *FakeResponseBodyGenerator {
-	return &FakeResponseBodyGenerator{""}
-}
-
 var (
 	fakeResponseBodyGenerator *FakeResponseBodyGenerator
 	enanosHttpHandlerFactory  *DefaultEnanosHttpHandlerFactory
