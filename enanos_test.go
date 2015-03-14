@@ -262,10 +262,21 @@ func Test_Enanos(t *testing.T) {
 			}
 
 			g.It("returns 400 when no code is present", func() {
-				code := 400
-				resp, _ := SendHelloWorldByHttpMethod(method, url("/defined"))
-				defer resp.Body.Close()
-				assert.Equal(t, code, resp.StatusCode)
+				for _, method := range METHODS {
+					code := 400
+					resp, _ := SendHelloWorldByHttpMethod(method, url("/defined"))
+					defer resp.Body.Close()
+					assert.Equal(t, code, resp.StatusCode)
+				}
+			})
+
+			g.It("returns 400 when an non int code is specified", func() {
+				for _, method := range METHODS {
+					code := 400
+					resp, _ := SendHelloWorldByHttpMethod(method, url("/defined?code=bang"))
+					defer resp.Body.Close()
+					assert.Equal(t, code, resp.StatusCode)
+				}
 			})
 		})
 	})

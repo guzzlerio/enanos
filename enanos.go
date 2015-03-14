@@ -160,8 +160,14 @@ func (instance *DefaultEnanosHttpHandlerFactory) Client_Error(w http.ResponseWri
 func (instance *DefaultEnanosHttpHandlerFactory) Defined(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code != "" {
-		intCode, _ := strconv.Atoi(code)
-		w.WriteHeader(intCode)
+		intCode, err := strconv.Atoi(code)
+		if err != nil {
+			w.WriteHeader(400)
+		} else {
+			w.WriteHeader(intCode)
+		}
+	} else {
+		w.WriteHeader(400)
 	}
 }
 
