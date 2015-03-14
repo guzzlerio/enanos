@@ -171,12 +171,12 @@ func StartEnanos(config Config) {
 	})
 
 	urlToHandlers := map[string]goSimpleHttp.HttpHandler{
-		"/default/happy":   config.httpHandlerFatory.Happy,
-		"/default/grumpy":  config.httpHandlerFatory.Grumpy,
-		"/default/sneezy":  config.httpHandlerFatory.Sneezy,
-		"/default/sleepy":  config.httpHandlerFatory.Sleepy,
-		"/default/bashful": config.httpHandlerFatory.Bashful,
-		"/default/dopey":   config.httpHandlerFatory.Dopey,
+		"/success":      config.httpHandlerFatory.Happy,
+		"/server_error": config.httpHandlerFatory.Grumpy,
+		"/content_size": config.httpHandlerFatory.Sneezy,
+		"/wait":         config.httpHandlerFatory.Sleepy,
+		"/redirect":     config.httpHandlerFatory.Bashful,
+		"/client_error": config.httpHandlerFatory.Dopey,
 	}
 
 	for key, value := range urlToHandlers {

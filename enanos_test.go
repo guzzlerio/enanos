@@ -143,11 +143,11 @@ func Test_Enanos(t *testing.T) {
 			return
 		}
 
-		g.Describe("Happy :", func() {
+		g.Describe("Success :", func() {
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					g.It(fmt.Sprintf("%s returns 200", method), func() {
-						resp, _ := SendHelloWorldByHttpMethod(method, url("/default/happy"))
+						resp, _ := SendHelloWorldByHttpMethod(method, url("/success"))
 						defer resp.Body.Close()
 						assert.Equal(t, http.StatusOK, resp.StatusCode)
 					})
@@ -155,14 +155,14 @@ func Test_Enanos(t *testing.T) {
 			}
 		})
 
-		g.Describe("Grumpy :", func() {
+		g.Describe("Server Error :", func() {
 			codes := responseCodes_500
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					for _, code := range codes {
 						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
 							responseCodeGenerator.Use(code)
-							resp, _ := SendHelloWorldByHttpMethod(method, url("/default/grumpy"))
+							resp, _ := SendHelloWorldByHttpMethod(method, url("/server_error"))
 							defer resp.Body.Close()
 							assert.Equal(t, code, resp.StatusCode)
 						})
@@ -171,11 +171,11 @@ func Test_Enanos(t *testing.T) {
 			}
 		})
 
-		g.Describe("Sneezy :", func() {
+		g.Describe("Content Size :", func() {
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					g.It(fmt.Sprintf("%s returns 200", method), func() {
-						resp, _ := SendHelloWorldByHttpMethod(method, url("/default/sneezy"))
+						resp, _ := SendHelloWorldByHttpMethod(method, url("/content_size"))
 						defer resp.Body.Close()
 						assert.Equal(t, http.StatusOK, resp.StatusCode)
 					})
@@ -183,7 +183,7 @@ func Test_Enanos(t *testing.T) {
 				g.It(fmt.Sprintf("%s returns random response body", method), func() {
 					sample := "foobar"
 					fakeResponseBodyGenerator.UseString(sample)
-					resp, _ := SendHelloWorldByHttpMethod(method, url("/default/sneezy"))
+					resp, _ := SendHelloWorldByHttpMethod(method, url("/content_size"))
 					defer resp.Body.Close()
 					body, _ := ioutil.ReadAll(resp.Body)
 					assert.Equal(t, sample, string(body))
@@ -191,14 +191,14 @@ func Test_Enanos(t *testing.T) {
 			}
 		})
 
-		g.Describe("Sleepy :", func() {
+		g.Describe("Wait :", func() {
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					g.It(fmt.Sprintf("%s returns 200 after a random time between a start and end duration", method), func() {
 						sleep := 10 * time.Millisecond
 						snoozer.SleepFor(sleep)
 						start := time.Now()
-						resp, _ := SendHelloWorldByHttpMethod(method, url("/default/sleepy"))
+						resp, _ := SendHelloWorldByHttpMethod(method, url("/wait"))
 						defer resp.Body.Close()
 						end := time.Now()
 						difference := goclock.DurationDiff(start, end)
@@ -210,14 +210,14 @@ func Test_Enanos(t *testing.T) {
 			}
 		})
 
-		g.Describe("Bashful :", func() {
+		g.Describe("Redirect :", func() {
 			codes := responseCodes_300
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					for _, code := range codes {
 						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
 							responseCodeGenerator.Use(code)
-							resp, _ := SendHelloWorldByHttpMethod(method, url("/default/bashful"))
+							resp, _ := SendHelloWorldByHttpMethod(method, url("/redirect"))
 							defer resp.Body.Close()
 							assert.Equal(t, code, resp.StatusCode)
 						})
@@ -226,14 +226,14 @@ func Test_Enanos(t *testing.T) {
 			}
 		})
 
-		g.Describe("Dopey :", func() {
+		g.Describe("Client Error :", func() {
 			codes := responseCodes_400
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					for _, code := range codes {
 						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
 							responseCodeGenerator.Use(code)
-							resp, _ := SendHelloWorldByHttpMethod(method, url("/default/dopey"))
+							resp, _ := SendHelloWorldByHttpMethod(method, url("/client_error"))
 							defer resp.Body.Close()
 							assert.Equal(t, code, resp.StatusCode)
 						})
