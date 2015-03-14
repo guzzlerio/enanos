@@ -11,7 +11,6 @@ import (
 	"os"
 	"strconv"
 	"testing"
-	"time"
 )
 
 func ContainsInt(array []int, item int) bool {
@@ -37,22 +36,6 @@ func (instance *FakeResponseBodyGenerator) UseString(value string) {
 
 func NewFakeResponseBodyGenerator() *FakeResponseBodyGenerator {
 	return &FakeResponseBodyGenerator{""}
-}
-
-type FakeSnoozer struct {
-	duration time.Duration
-}
-
-func (instance *FakeSnoozer) RandomSnooze() {
-	time.Sleep(instance.duration)
-}
-
-func (instance *FakeSnoozer) SleepFor(duration time.Duration) {
-	instance.duration = duration
-}
-
-func NewFakeSnoozer() *FakeSnoozer {
-	return &FakeSnoozer{0}
 }
 
 var (

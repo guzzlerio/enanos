@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
-	"time"
 )
 
 const (
@@ -17,25 +16,6 @@ var (
 	responseCodes_400 []int = []int{400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417}
 	responseCodes_500 []int = []int{500, 501, 502, 503, 504, 505}
 )
-
-type Snoozer interface {
-	RandomSnooze()
-}
-
-type RealSnoozer struct {
-	Min    time.Duration
-	Max    time.Duration
-	random Random
-}
-
-func (instance *RealSnoozer) RandomSnooze() {
-	randomSleep := instance.random.Duration(instance.Min, instance.Max)
-	time.Sleep(randomSleep)
-}
-
-func NewRealSnoozer(min time.Duration, max time.Duration) *RealSnoozer {
-	return &RealSnoozer{min, max, &RealRandom{}}
-}
 
 type Config struct {
 	httpHandlerFatory EnanosHttpHandlerFactory
