@@ -45,10 +45,9 @@ func TestMain(m *testing.M) {
 	random = NewFakeRandom()
 	snoozer = NewFakeSnoozer()
 	responseCodeGenerator = NewFakeResponseCodeGenerator()
-	enanosHttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(fakeResponseBodyGenerator, factory, snoozer, random)
 	go func() {
-		config := Config{enanosHttpHandlerFactory, PORT, false}
-		StartEnanos(config)
+		config := Config{PORT, false}
+		StartEnanos(config, fakeResponseBodyGenerator, factory, snoozer, random)
 	}()
 	os.Exit(m.Run())
 }

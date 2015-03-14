@@ -42,8 +42,8 @@ func main() {
 	responseBodyGenerator := NewRandomResponseBodyGenerator(*minSize, *maxSize)
 	random := NewRealRandom()
 	snoozer := NewRealSnoozer(time.Duration(*minSleep)*time.Millisecond, time.Duration(*maxSleep)*time.Millisecond)
-	handleFactory := NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator, responseCodeGeneratorFactory, snoozer, random)
-	config := Config{handleFactory, *port, *debug}
+
+	config := Config{*port, *debug}
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
-	StartEnanos(config)
+	StartEnanos(config, responseBodyGenerator, responseCodeGeneratorFactory, snoozer, random)
 }
