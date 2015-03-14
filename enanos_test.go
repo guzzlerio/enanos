@@ -248,7 +248,8 @@ func Test_Enanos(t *testing.T) {
 		})
 
 		g.Describe("Defined", func() {
-			codes := responseCodes_400
+			codes := append(responseCodes_300, responseCodes_400...)
+			codes = append(codes, responseCodes_500...)
 			for _, method := range METHODS {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					for _, code := range codes {
