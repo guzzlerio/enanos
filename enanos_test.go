@@ -23,22 +23,6 @@ func ContainsInt(array []int, item int) bool {
 	return false
 }
 
-type FakeResponseCodeGenerator struct {
-	use int
-}
-
-func (instance *FakeResponseCodeGenerator) Use(value int) {
-	instance.use = value
-}
-
-func (instance *FakeResponseCodeGenerator) Generate() int {
-	return instance.use
-}
-
-func NewFakeResponseCodeGenerator() *FakeResponseCodeGenerator {
-	return &FakeResponseCodeGenerator{}
-}
-
 type FakeResponseBodyGenerator struct {
 	use string
 }

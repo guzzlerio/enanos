@@ -36,8 +36,6 @@ func main() {
 	/client_error		- will return a random 4XX response code
 	/dead_or_alive	- will kill the server and only bring it back online after configured amount of time (ms) has passed
 
-	/random		- will use one of the above endpoints at random
-
 	/defined?code=<code>	- will return the specified http status code
 	`
 	kingpin.Parse()
