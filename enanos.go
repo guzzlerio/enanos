@@ -103,12 +103,12 @@ func NewRandomResponseBodyGenerator(minLength int, maxLength int) *RandomRespons
 }
 
 type EnanosHttpHandlerFactory interface {
-	Happy(w http.ResponseWriter, r *http.Request)
-	Grumpy(w http.ResponseWriter, r *http.Request)
-	Sneezy(w http.ResponseWriter, r *http.Request)
-	Sleepy(w http.ResponseWriter, r *http.Request)
-	Bashful(w http.ResponseWriter, r *http.Request)
-	Dopey(w http.ResponseWriter, r *http.Request)
+	Success(w http.ResponseWriter, r *http.Request)
+	Server_Error(w http.ResponseWriter, r *http.Request)
+	Content_Size(w http.ResponseWriter, r *http.Request)
+	Wait(w http.ResponseWriter, r *http.Request)
+	Redirect(w http.ResponseWriter, r *http.Request)
+	Client_Error(w http.ResponseWriter, r *http.Request)
 }
 
 type DefaultEnanosHttpHandlerFactory struct {
@@ -120,29 +120,29 @@ type DefaultEnanosHttpHandlerFactory struct {
 	responseCodes_500     ResponseCodeGenerator
 }
 
-func (instance *DefaultEnanosHttpHandlerFactory) Happy(w http.ResponseWriter, r *http.Request) {
+func (instance *DefaultEnanosHttpHandlerFactory) Success(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (instance *DefaultEnanosHttpHandlerFactory) Grumpy(w http.ResponseWriter, r *http.Request) {
+func (instance *DefaultEnanosHttpHandlerFactory) Server_Error(w http.ResponseWriter, r *http.Request) {
 	code := instance.responseCodes_500.Generate()
 	w.WriteHeader(code)
 }
 
-func (instance *DefaultEnanosHttpHandlerFactory) Sneezy(w http.ResponseWriter, r *http.Request) {
+func (instance *DefaultEnanosHttpHandlerFactory) Content_Size(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	data := instance.responseBodyGenerator.Generate()
 	w.Write([]byte(data))
 }
 
-func (instance *DefaultEnanosHttpHandlerFactory) Sleepy(w http.ResponseWriter, r *http.Request) {
+func (instance *DefaultEnanosHttpHandlerFactory) Wait(w http.ResponseWriter, r *http.Request) {
 	instance.snoozer.RandomSnooze()
 	w.WriteHeader(http.StatusOK)
 	data := instance.responseBodyGenerator.Generate()
 	w.Write([]byte(data))
 }
 
-func (instance *DefaultEnanosHttpHandlerFactory) Bashful(w http.ResponseWriter, r *http.Request) {
+func (instance *DefaultEnanosHttpHandlerFactory) Redirect(w http.ResponseWriter, r *http.Request) {
 	code := instance.responseCodes_300.Generate()
 	if code == 301 || code == 302 || code == 303 || code == 307 {
 		w.Header().Set("location", "/default/bashful")
@@ -150,7 +150,7 @@ func (instance *DefaultEnanosHttpHandlerFactory) Bashful(w http.ResponseWriter, 
 	w.WriteHeader(code)
 }
 
-func (instance *DefaultEnanosHttpHandlerFactory) Dopey(w http.ResponseWriter, r *http.Request) {
+func (instance *DefaultEnanosHttpHandlerFactory) Client_Error(w http.ResponseWriter, r *http.Request) {
 	code := instance.responseCodes_400.Generate()
 	w.WriteHeader(code)
 }
@@ -171,12 +171,12 @@ func StartEnanos(config Config) {
 	})
 
 	urlToHandlers := map[string]goSimpleHttp.HttpHandler{
-		"/success":      config.httpHandlerFatory.Happy,
-		"/server_error": config.httpHandlerFatory.Grumpy,
-		"/content_size": config.httpHandlerFatory.Sneezy,
-		"/wait":         config.httpHandlerFatory.Sleepy,
-		"/redirect":     config.httpHandlerFatory.Bashful,
-		"/client_error": config.httpHandlerFatory.Dopey,
+		"/success":      config.httpHandlerFatory.Success,
+		"/server_error": config.httpHandlerFatory.Server_Error,
+		"/content_size": config.httpHandlerFatory.Content_Size,
+		"/wait":         config.httpHandlerFatory.Wait,
+		"/redirect":     config.httpHandlerFatory.Redirect,
+		"/client_error": config.httpHandlerFatory.Client_Error,
 	}
 
 	for key, value := range urlToHandlers {
