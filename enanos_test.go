@@ -253,7 +253,6 @@ func Test_Enanos(t *testing.T) {
 				g.Describe(fmt.Sprintf("%s :", method), func() {
 					for _, code := range codes {
 						g.It(fmt.Sprintf("%s returns a %d response code", method, code), func() {
-							responseCodeGenerator.Use(code)
 							resp, _ := SendHelloWorldByHttpMethod(method, url("/defined?code="+strconv.Itoa(code)))
 							defer resp.Body.Close()
 							assert.Equal(t, code, resp.StatusCode)
@@ -261,6 +260,13 @@ func Test_Enanos(t *testing.T) {
 					}
 				})
 			}
+
+			g.It("returns 400 when no code is present", func() {
+				code := 400
+				resp, _ := SendHelloWorldByHttpMethod(method, url("/defined"))
+				defer resp.Body.Close()
+				assert.Equal(t, code, resp.StatusCode)
+			})
 		})
 	})
 }
