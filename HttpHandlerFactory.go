@@ -25,6 +25,7 @@ type DefaultEnanosHttpHandlerFactory struct {
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Success(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", instance.config.contentType)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(instance.config.content))
 }
