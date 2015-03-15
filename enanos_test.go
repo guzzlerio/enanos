@@ -30,6 +30,7 @@ var (
 	responseCodeGenerator     *FakeResponseCodeGenerator
 	METHODS                   []string = []string{"GET", "POST", "PUT", "DELETE"}
 	content                   string
+	contentType               string
 )
 
 func factory(codes []int) ResponseCodeGenerator {
@@ -45,8 +46,9 @@ func TestMain(m *testing.M) {
 	snoozer = NewFakeSnoozer()
 	responseCodeGenerator = NewFakeResponseCodeGenerator()
 	content = "<xml type=\"foobar\"></xml>"
+	contentType = "application/json"
 	go func() {
-		config := Config{PORT, false, content}
+		config := Config{PORT, false, content, contentType}
 		StartEnanos(config, fakeResponseBodyGenerator, factory, snoozer)
 	}()
 	os.Exit(m.Run())
@@ -110,8 +112,14 @@ func Test_Enanos(t *testing.T) {
 				resp, _ := SendHelloWorldByHttpMethod("GET", url("/success"))
 				defer resp.Body.Close()
 				body, _ := ioutil.ReadAll(resp.Body)
-				assert.Equal(t, http.StatusOK, resp.StatusCode)
 				assert.Equal(t, string(body), content)
+			})
+
+			g.It("Returns defined content-type", func() {
+				resp, _ := SendHelloWorldByHttpMethod("GET", url("/success"))
+				defer resp.Body.Close()
+				contentType := resp.Header.Get("content-type")
+				assert.Equal(t, contentType, contentType)
 			})
 		})
 

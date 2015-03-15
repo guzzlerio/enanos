@@ -16,9 +16,10 @@ var (
 )
 
 type Config struct {
-	port    int
-	debug   bool
-	content string
+	port        int
+	debug       bool
+	content     string
+	contentType string
 }
 
 func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, responseCodeGeneratorFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer) {
