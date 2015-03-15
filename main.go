@@ -40,10 +40,9 @@ func main() {
 	`
 	kingpin.Parse()
 	responseBodyGenerator := NewRandomResponseBodyGenerator(*minSize, *maxSize)
-	random := NewRealRandom()
 	snoozer := NewRealSnoozer(time.Duration(*minSleep)*time.Millisecond, time.Duration(*maxSleep)*time.Millisecond)
 
-	config := Config{*port, *debug}
+	config := Config{*port, *debug, "sample"}
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
-	StartEnanos(config, responseBodyGenerator, responseCodeGeneratorFactory, snoozer, random)
+	StartEnanos(config, responseBodyGenerator, responseCodeGeneratorFactory, snoozer)
 }

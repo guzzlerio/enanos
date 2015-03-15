@@ -16,14 +16,15 @@ var (
 )
 
 type Config struct {
-	port  int
-	debug bool
+	port    int
+	debug   bool
+	content string
 }
 
-func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, responseCodeGeneratorFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer, random Random) {
+func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, responseCodeGeneratorFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer) {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	handlerFactory := NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator, responseCodeGeneratorFactory, snoozer, random)
+	handlerFactory := NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator, responseCodeGeneratorFactory, snoozer, config)
 	server := goSimpleHttp.NewSimpleHttpServer(config.port, "localhost")
 	server.OnStopped(func() {
 		wg.Done()

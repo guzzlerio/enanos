@@ -18,7 +18,7 @@ type HttpHandlerFactory interface {
 type DefaultEnanosHttpHandlerFactory struct {
 	responseBodyGenerator ResponseBodyGenerator
 	snoozer               Snoozer
-	random                Random
+	config                Config
 	responseCodes_300     ResponseCodeGenerator
 	responseCodes_400     ResponseCodeGenerator
 	responseCodes_500     ResponseCodeGenerator
@@ -26,6 +26,7 @@ type DefaultEnanosHttpHandlerFactory struct {
 
 func (instance *DefaultEnanosHttpHandlerFactory) Success(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(instance.config.content))
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Server_Error(w http.ResponseWriter, r *http.Request) {
@@ -73,9 +74,9 @@ func (instance *DefaultEnanosHttpHandlerFactory) Defined(w http.ResponseWriter, 
 	}
 }
 
-func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, responseCodeGenFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer, random Random) *DefaultEnanosHttpHandlerFactory {
+func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, responseCodeGenFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer, config Config) *DefaultEnanosHttpHandlerFactory {
 	responseCodes_300 := responseCodeGenFactory(responseCodes_300)
 	responseCodes_400 := responseCodeGenFactory(responseCodes_400)
 	responseCodes_500 := responseCodeGenFactory(responseCodes_500)
-	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator, snoozer, random, responseCodes_300, responseCodes_400, responseCodes_500}
+	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator, snoozer, config, responseCodes_300, responseCodes_400, responseCodes_500}
 }

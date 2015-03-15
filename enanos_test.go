@@ -27,9 +27,9 @@ var (
 	fakeResponseBodyGenerator *FakeResponseBodyGenerator
 	enanosHttpHandlerFactory  *DefaultEnanosHttpHandlerFactory
 	snoozer                   *FakeSnoozer
-	random                    *FakeRandom
 	responseCodeGenerator     *FakeResponseCodeGenerator
 	METHODS                   []string = []string{"GET", "POST", "PUT", "DELETE"}
+	content                   string
 )
 
 func factory(codes []int) ResponseCodeGenerator {
@@ -42,12 +42,12 @@ const (
 
 func TestMain(m *testing.M) {
 	fakeResponseBodyGenerator = NewFakeResponseBodyGenerator()
-	random = NewFakeRandom()
 	snoozer = NewFakeSnoozer()
 	responseCodeGenerator = NewFakeResponseCodeGenerator()
+	content = "<xml type=\"foobar\"></xml>"
 	go func() {
-		config := Config{PORT, false}
-		StartEnanos(config, fakeResponseBodyGenerator, factory, snoozer, random)
+		config := Config{PORT, false, content}
+		StartEnanos(config, fakeResponseBodyGenerator, factory, snoozer)
 	}()
 	os.Exit(m.Run())
 }
@@ -105,6 +105,14 @@ func Test_Enanos(t *testing.T) {
 					})
 				})
 			}
+
+			g.It("Returns defined content", func() {
+				resp, _ := SendHelloWorldByHttpMethod("GET", url("/success"))
+				defer resp.Body.Close()
+				body, _ := ioutil.ReadAll(resp.Body)
+				assert.Equal(t, http.StatusOK, resp.StatusCode)
+				assert.Equal(t, string(body), content)
+			})
 		})
 
 		g.Describe("Server Error :", func() {
