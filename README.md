@@ -1,6 +1,7 @@
 # enanos
 
-Enanos is a HTTP server with several endpoints that can be used to substitute the actual http service dependencies of a system.  This tool allows developers to see how a system will perform against varying un-stable http services, each which exhibit different effects.
+Enanos is an investigation tool in the form of a HTTP server with several endpoints that can be used to substitute the actual http service dependencies of a system.  This tool allows you to see how a system will perform against varying un-stable http services, each which exhibit different effects.
+
 	
 ## Downloads
 
