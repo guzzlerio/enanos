@@ -5,29 +5,37 @@ import (
 )
 
 type Snoozer interface {
-	RandomSnooze()
+	Snooze()
 }
 
-type RealSnoozer struct {
+type MaxSnoozer struct {
+	Max time.Duration
+}
+
+func (instance *MaxSnoozer) Snooze() {
+	time.Sleep(instance.Max)
+}
+
+type RandomSnoozer struct {
 	Min    time.Duration
 	Max    time.Duration
 	random Random
 }
 
-func (instance *RealSnoozer) RandomSnooze() {
+func (instance *RandomSnoozer) Snooze() {
 	randomSleep := instance.random.Duration(instance.Min, instance.Max)
 	time.Sleep(randomSleep)
 }
 
-func NewRealSnoozer(min time.Duration, max time.Duration) *RealSnoozer {
-	return &RealSnoozer{min, max, &RealRandom{}}
+func NewRandomSnoozer(min time.Duration, max time.Duration) *RandomSnoozer {
+	return &RandomSnoozer{min, max, &RealRandom{}}
 }
 
 type FakeSnoozer struct {
 	duration time.Duration
 }
 
-func (instance *FakeSnoozer) RandomSnooze() {
+func (instance *FakeSnoozer) Snooze() {
 	time.Sleep(instance.duration)
 }
 

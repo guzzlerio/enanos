@@ -77,7 +77,7 @@ func (instance *DefaultEnanosHttpHandlerFactory) Content_Size(w http.ResponseWri
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Wait(w http.ResponseWriter, r *http.Request) {
-	instance.snoozer.RandomSnooze()
+	instance.snoozer.Snooze()
 	w.Header().Set("content-type", instance.config.contentType)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(instance.config.content))
