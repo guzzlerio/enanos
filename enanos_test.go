@@ -59,7 +59,7 @@ func Test_ResponseBodyGenerator(t *testing.T) {
 	g.Describe("Default Response Body Generator", func() {
 		g.It("generates a string of the defined lenth", func() {
 			maxLength := 5
-			generator := NewDefaultResponseBodyGenerator(maxLength)
+			generator := NewMaxResponseBodyGenerator(maxLength)
 			value := generator.Generate()
 			assert.Equal(t, maxLength, len(value))
 		})

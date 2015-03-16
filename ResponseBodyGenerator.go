@@ -4,11 +4,11 @@ type ResponseBodyGenerator interface {
 	Generate() string
 }
 
-type DefaultResponseBodyGenerator struct {
+type MaxResponseBodyGenerator struct {
 	maxLength int
 }
 
-func (instance *DefaultResponseBodyGenerator) Generate() string {
+func (instance *MaxResponseBodyGenerator) Generate() string {
 	var returnArray = make([]rune, instance.maxLength)
 	for i := range returnArray {
 		returnArray[i] = '-'
@@ -16,8 +16,8 @@ func (instance *DefaultResponseBodyGenerator) Generate() string {
 	return string(returnArray)
 }
 
-func NewDefaultResponseBodyGenerator(maxLength int) *DefaultResponseBodyGenerator {
-	return &DefaultResponseBodyGenerator{maxLength}
+func NewMaxResponseBodyGenerator(maxLength int) *MaxResponseBodyGenerator {
+	return &MaxResponseBodyGenerator{maxLength}
 }
 
 type RandomResponseBodyGenerator struct {

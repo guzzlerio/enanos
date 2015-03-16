@@ -43,8 +43,14 @@ func main() {
 	/defined?code=<code>	- will return the specified http status code
 	`
 	kingpin.Parse()
-	responseBodyGenerator := NewRandomResponseBodyGenerator(*minSize, *maxSize)
 	var snoozer Snoozer
+	var responseBodyGenerator ResponseBodyGenerator
+
+	if *randomSize {
+		responseBodyGenerator = NewRandomResponseBodyGenerator(*minSize, *maxSize)
+	} else {
+		responseBodyGenerator = NewMaxResponseBodyGenerator(*maxSize)
+	}
 
 	if *randomSleep {
 		snoozer = NewRandomSnoozer(time.Duration(*minSleep)*time.Millisecond, time.Duration(*maxSleep)*time.Millisecond)
