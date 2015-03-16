@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gopkg.in/alecthomas/kingpin.v1"
+	"os"
 	"strconv"
 	"time"
 )
@@ -14,8 +15,8 @@ const (
 var (
 	verbose     = kingpin.Flag("verbose", "Enable verbose mode.").Bool()
 	port        = kingpin.Flag("port", "the port to host the server on").Default("8000").Short('p').OverrideDefaultFromEnvar(ENV_ENANOS_PORT).Int()
-	minSleep    = kingpin.Flag("min-sleep", "the minimum sleep time for sleepy in milliseconds").Default("1000").Int()
-	maxSleep    = kingpin.Flag("max-sleep", "the maximum sleep time for sleepy in milliseconds").Default("60000").Int()
+	minSleep    = kingpin.Flag("min-sleep", "the minimum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("1s").String()
+	maxSleep    = kingpin.Flag("max-sleep", "the maximum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("60s").String()
 	randomSleep = kingpin.Flag("random-sleep", "whether to sleep a random time between min and max or just the max").Default("true").Bool()
 	minSize     = kingpin.Flag("min-size", "the minimum size of response body for sneezy to generate").Default("1024").Int()
 	maxSize     = kingpin.Flag("max-size", "the maximum size of response body for sneezy to generate").Default(strconv.Itoa(1024 * 100)).Int()
@@ -52,10 +53,18 @@ func main() {
 		responseBodyGenerator = NewMaxResponseBodyGenerator(*maxSize)
 	}
 
+	minSleepValue, minSleepErr := time.ParseDuration(*minSleep)
+	maxSleepValue, maxSleepErr := time.ParseDuration(*maxSleep)
+
+	if minSleepErr != nil || maxSleepErr != nil {
+		fmt.Errorf("Invalid duration specified for min or max sleep")
+		os.Exit(1)
+	}
+
 	if *randomSleep {
-		snoozer = NewRandomSnoozer(time.Duration(*minSleep)*time.Millisecond, time.Duration(*maxSleep)*time.Millisecond)
+		snoozer = NewRandomSnoozer(minSleepValue, maxSleepValue)
 	} else {
-		snoozer = NewMaxSnoozer(time.Duration(*maxSleep))
+		snoozer = NewMaxSnoozer(maxSleepValue)
 	}
 
 	config := Config{*port, *verbose, *content, *contentType}
