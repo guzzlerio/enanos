@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/dustin/go-humanize"
 	"gopkg.in/alecthomas/kingpin.v1"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -18,8 +18,8 @@ var (
 	minSleep    = kingpin.Flag("min-sleep", "the minimum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("1s").String()
 	maxSleep    = kingpin.Flag("max-sleep", "the maximum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("60s").String()
 	randomSleep = kingpin.Flag("random-sleep", "whether to sleep a random time between min and max or just the max").Default("true").Bool()
-	minSize     = kingpin.Flag("min-size", "the minimum size of response body for sneezy to generate").Default("1024").Int()
-	maxSize     = kingpin.Flag("max-size", "the maximum size of response body for sneezy to generate").Default(strconv.Itoa(1024 * 100)).Int()
+	minSize     = kingpin.Flag("min-size", "the minimum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...").Default("10KB").String()
+	maxSize     = kingpin.Flag("max-size", "the maximum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...").Default("100KB").String()
 	randomSize  = kingpin.Flag("random-size", "whether to return a random sized payload between min and max or just max").Default("true").Bool()
 	content     = kingpin.Flag("content", "the content to return for OK responses").Default("hello world").String()
 	contentType = kingpin.Flag("content-type", "the content type to return for OK responses").Default("text/plain").String()
@@ -47,10 +47,18 @@ func main() {
 	var snoozer Snoozer
 	var responseBodyGenerator ResponseBodyGenerator
 
+	minSizeValue, minSizeErr := humanize.ParseBytes(*minSize)
+	maxSizeValue, maxSizeErr := humanize.ParseBytes(*maxSize)
+
+	if minSizeErr != nil || maxSizeErr != nil {
+		fmt.Errorf("Invalid size specified for min or max size")
+		os.Exit(1)
+	}
+
 	if *randomSize {
-		responseBodyGenerator = NewRandomResponseBodyGenerator(*minSize, *maxSize)
+		responseBodyGenerator = NewRandomResponseBodyGenerator(int(minSizeValue), int(maxSizeValue))
 	} else {
-		responseBodyGenerator = NewMaxResponseBodyGenerator(*maxSize)
+		responseBodyGenerator = NewMaxResponseBodyGenerator(int(maxSizeValue))
 	}
 
 	minSleepValue, minSleepErr := time.ParseDuration(*minSleep)
