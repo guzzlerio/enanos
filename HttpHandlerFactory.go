@@ -7,11 +7,30 @@ import (
 	"time"
 )
 
+type HttpResponseWriterRecorder struct {
+	Code   int
+	writer http.ResponseWriter
+}
+
+func (instance *HttpResponseWriterRecorder) Header() http.Header {
+	return instance.writer.Header()
+}
+
+func (instance *HttpResponseWriterRecorder) Write(data []byte) (int, error) {
+	return instance.writer.Write(data)
+}
+
+func (instance *HttpResponseWriterRecorder) WriteHeader(code int) {
+	instance.Code = code
+	instance.writer.WriteHeader(code)
+}
+
 func monitorTime(handler http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-	handler(w, r)
+	writer := &HttpResponseWriterRecorder{0, w}
+	handler(writer, r)
 	elapsed := time.Since(start)
-	fmt.Println(fmt.Sprintf("[%s] %s", elapsed, r.URL.Path))
+	fmt.Println(fmt.Sprintf("%-15s%-4d%s", elapsed, writer.Code, r.URL.Path))
 }
 
 type HttpHandlerFactory interface {
