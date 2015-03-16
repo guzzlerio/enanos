@@ -16,8 +16,10 @@ var (
 	port        = kingpin.Flag("port", "the port to host the server on").Default("8000").Short('p').OverrideDefaultFromEnvar(ENV_ENANOS_PORT).Int()
 	minSleep    = kingpin.Flag("min-sleep", "the minimum sleep time for sleepy in milliseconds").Default("1000").Int()
 	maxSleep    = kingpin.Flag("max-sleep", "the maximum sleep time for sleepy in milliseconds").Default("60000").Int()
+	randomSleep = kingpin.Flag("random-sleep", "whether to sleep a random time between min and max or just the max").Default("true").Bool()
 	minSize     = kingpin.Flag("min-size", "the minimum size of response body for sneezy to generate").Default("1024").Int()
 	maxSize     = kingpin.Flag("max-size", "the maximum size of response body for sneezy to generate").Default(strconv.Itoa(1024 * 100)).Int()
+	randomSize  = kingpin.Flag("random-size", "whether to return a random sized payload between min and max or just max").Default("true").Bool()
 	content     = kingpin.Flag("content", "the content to return for OK responses").Default("hello world").String()
 	contentType = kingpin.Flag("content-type", "the content type to return for OK responses").Default("text/plain").String()
 )
@@ -42,7 +44,13 @@ func main() {
 	`
 	kingpin.Parse()
 	responseBodyGenerator := NewRandomResponseBodyGenerator(*minSize, *maxSize)
-	snoozer := NewRandomSnoozer(time.Duration(*minSleep)*time.Millisecond, time.Duration(*maxSleep)*time.Millisecond)
+	var snoozer Snoozer
+
+	if *randomSleep {
+		snoozer = NewRandomSnoozer(time.Duration(*minSleep)*time.Millisecond, time.Duration(*maxSleep)*time.Millisecond)
+	} else {
+		snoozer = NewMaxSnoozer(time.Duration(*maxSleep))
+	}
 
 	config := Config{*port, *verbose, *content, *contentType}
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))

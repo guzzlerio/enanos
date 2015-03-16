@@ -16,6 +16,10 @@ func (instance *MaxSnoozer) Snooze() {
 	time.Sleep(instance.Max)
 }
 
+func NewMaxSnoozer(max time.Duration) *MaxSnoozer {
+	return &MaxSnoozer{max}
+}
+
 type RandomSnoozer struct {
 	Min    time.Duration
 	Max    time.Duration
