@@ -17,7 +17,7 @@ var (
 
 type Config struct {
 	port        int
-	debug       bool
+	verbose     bool
 	content     string
 	contentType string
 }
@@ -25,7 +25,10 @@ type Config struct {
 func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, responseCodeGeneratorFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer) {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	handlerFactory := NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator, responseCodeGeneratorFactory, snoozer, config)
+	var handlerFactory HttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator, responseCodeGeneratorFactory, snoozer, config)
+	if config.verbose {
+		handlerFactory = &VerboseHttpHandler{handlerFactory}
+	}
 	server := goSimpleHttp.NewSimpleHttpServer(config.port, "localhost")
 	server.OnStopped(func() {
 		wg.Done()

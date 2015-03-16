@@ -1,9 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 )
+
+func monitorTime(handler http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+	handler(w, r)
+	elapsed := time.Since(start)
+	fmt.Println(fmt.Sprintf("[%s] %s", elapsed, r.URL.Path))
+}
 
 type HttpHandlerFactory interface {
 	Success(w http.ResponseWriter, r *http.Request)
@@ -15,8 +24,30 @@ type HttpHandlerFactory interface {
 	Defined(w http.ResponseWriter, r *http.Request)
 }
 
-type DebugHttpHandlerFactory struct {
+type VerboseHttpHandler struct {
 	handler HttpHandlerFactory
+}
+
+func (instance *VerboseHttpHandler) Success(w http.ResponseWriter, r *http.Request) {
+	monitorTime(instance.handler.Success, w, r)
+}
+func (instance *VerboseHttpHandler) Server_Error(w http.ResponseWriter, r *http.Request) {
+	monitorTime(instance.handler.Server_Error, w, r)
+}
+func (instance *VerboseHttpHandler) Content_Size(w http.ResponseWriter, r *http.Request) {
+	monitorTime(instance.handler.Content_Size, w, r)
+}
+func (instance *VerboseHttpHandler) Wait(w http.ResponseWriter, r *http.Request) {
+	monitorTime(instance.handler.Wait, w, r)
+}
+func (instance *VerboseHttpHandler) Redirect(w http.ResponseWriter, r *http.Request) {
+	monitorTime(instance.handler.Redirect, w, r)
+}
+func (instance *VerboseHttpHandler) Client_Error(w http.ResponseWriter, r *http.Request) {
+	monitorTime(instance.handler.Client_Error, w, r)
+}
+func (instance *VerboseHttpHandler) Defined(w http.ResponseWriter, r *http.Request) {
+	monitorTime(instance.handler.Defined, w, r)
 }
 
 type DefaultEnanosHttpHandlerFactory struct {
@@ -47,9 +78,9 @@ func (instance *DefaultEnanosHttpHandlerFactory) Content_Size(w http.ResponseWri
 
 func (instance *DefaultEnanosHttpHandlerFactory) Wait(w http.ResponseWriter, r *http.Request) {
 	instance.snoozer.RandomSnooze()
+	w.Header().Set("content-type", instance.config.contentType)
 	w.WriteHeader(http.StatusOK)
-	data := instance.responseBodyGenerator.Generate()
-	w.Write([]byte(data))
+	w.Write([]byte(instance.config.content))
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Redirect(w http.ResponseWriter, r *http.Request) {

@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	debug       = kingpin.Flag("debug", "Enable debug mode.").Bool()
+	verbose     = kingpin.Flag("verbose", "Enable verbose mode.").Bool()
 	port        = kingpin.Flag("port", "the port to host the server on").Default("8000").Short('p').OverrideDefaultFromEnvar(ENV_ENANOS_PORT).Int()
 	minSleep    = kingpin.Flag("min-sleep", "the minimum sleep time for sleepy in milliseconds").Default("1000").Int()
 	maxSleep    = kingpin.Flag("max-sleep", "the maximum sleep time for sleepy in milliseconds").Default("60000").Int()
@@ -44,7 +44,7 @@ func main() {
 	responseBodyGenerator := NewRandomResponseBodyGenerator(*minSize, *maxSize)
 	snoozer := NewRealSnoozer(time.Duration(*minSleep)*time.Millisecond, time.Duration(*maxSleep)*time.Millisecond)
 
-	config := Config{*port, *debug, *content, *contentType}
+	config := Config{*port, *verbose, *content, *contentType}
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
 	StartEnanos(config, responseBodyGenerator, responseCodeGeneratorFactory, snoozer)
 }
