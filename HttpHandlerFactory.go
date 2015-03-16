@@ -15,6 +15,10 @@ type HttpHandlerFactory interface {
 	Defined(w http.ResponseWriter, r *http.Request)
 }
 
+type DebugHttpHandlerFactory struct {
+	handler HttpHandlerFactory
+}
+
 type DefaultEnanosHttpHandlerFactory struct {
 	responseBodyGenerator ResponseBodyGenerator
 	snoozer               Snoozer
