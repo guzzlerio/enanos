@@ -23,6 +23,7 @@ var (
 	randomSize  = kingpin.Flag("random-size", "whether to return a random sized payload between min and max or just max").Default("true").Bool()
 	content     = kingpin.Flag("content", "the content to return for OK responses").Default("hello world").String()
 	contentType = kingpin.Flag("content-type", "the content type to return for OK responses").Default("text/plain").String()
+	headers     = kingpin.Flag("header", "response headers to be returned. Key:Value").Short('H').Strings()
 )
 
 func responseCodeGeneratorFactory(codes []int) ResponseCodeGenerator {
@@ -75,7 +76,7 @@ func main() {
 		snoozer = NewMaxSnoozer(maxSleepValue)
 	}
 
-	config := Config{*port, *verbose, *content, *contentType}
+	config := Config{*port, *verbose, *content, *contentType, *headers}
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
 	StartEnanos(config, responseBodyGenerator, responseCodeGeneratorFactory, snoozer)
 }

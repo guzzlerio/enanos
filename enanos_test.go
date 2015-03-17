@@ -22,6 +22,7 @@ var (
 	METHODS                   []string = []string{"GET", "POST", "PUT", "DELETE"}
 	testContent               string
 	testContentType           string
+	testHeaders               []string
 )
 
 func factory(codes []int) ResponseCodeGenerator {
@@ -38,8 +39,12 @@ func TestMain(m *testing.M) {
 	responseCodeGenerator = NewFakeResponseCodeGenerator()
 	testContent = "<xml type=\"foobar\"></xml>"
 	testContentType = "application/json"
+	testHeaders = []string{
+		"Age:12",
+		"Content-Length:101",
+	}
 	go func() {
-		config := Config{PORT, false, testContent, testContentType}
+		config := Config{PORT, false, testContent, testContentType, testHeaders}
 		StartEnanos(config, fakeResponseBodyGenerator, factory, snoozer)
 	}()
 	os.Exit(m.Run())
@@ -216,4 +221,30 @@ var _ = Describe("Enanos Server:", func() {
 			}
 		})
 	})
+
+	Describe("Headers", func() {
+		endpoints := []string{"success", "wait", "content_size"}
+		BeforeEach(func() {
+			sample := "foobar"
+			fakeResponseBodyGenerator.UseString(sample)
+			sleep := 10 * time.Millisecond
+			snoozer.SleepFor(sleep)
+		})
+
+		for _, endpoint := range endpoints {
+			for _, method := range METHODS {
+				Describe(fmt.Sprintf("%s :", method), func() {
+					It(fmt.Sprintf("%s %s set the response headers", method, endpoint), func() {
+						urlToUse := url(fmt.Sprintf("/%s", endpoint))
+						resp, _ := SendHelloWorldByHttpMethod(method, urlToUse)
+						defer resp.Body.Close()
+
+						Expect(resp.Header.Get("Age")).To(Equal("12"))
+						Expect(resp.Header.Get("Content-Length")).To(Equal("101"))
+					})
+				})
+			}
+		}
+	})
+
 })

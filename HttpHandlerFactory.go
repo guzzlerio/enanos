@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -80,6 +81,11 @@ type DefaultEnanosHttpHandlerFactory struct {
 
 func (instance *DefaultEnanosHttpHandlerFactory) Success(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", instance.config.contentType)
+	for _, responseHeader := range instance.config.headers {
+		split := strings.Split(responseHeader, ":")
+		w.Header().Set(split[0], split[1])
+	}
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(instance.config.content))
 }
@@ -90,6 +96,11 @@ func (instance *DefaultEnanosHttpHandlerFactory) Server_Error(w http.ResponseWri
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Content_Size(w http.ResponseWriter, r *http.Request) {
+	for _, responseHeader := range instance.config.headers {
+		split := strings.Split(responseHeader, ":")
+		w.Header().Set(split[0], split[1])
+	}
+
 	w.WriteHeader(http.StatusOK)
 	data := instance.responseBodyGenerator.Generate()
 	w.Write([]byte(data))
@@ -98,6 +109,11 @@ func (instance *DefaultEnanosHttpHandlerFactory) Content_Size(w http.ResponseWri
 func (instance *DefaultEnanosHttpHandlerFactory) Wait(w http.ResponseWriter, r *http.Request) {
 	instance.snoozer.Snooze()
 	w.Header().Set("content-type", instance.config.contentType)
+	for _, responseHeader := range instance.config.headers {
+		split := strings.Split(responseHeader, ":")
+		w.Header().Set(split[0], split[1])
+	}
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(instance.config.content))
 }

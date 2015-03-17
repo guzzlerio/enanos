@@ -20,6 +20,7 @@ type Config struct {
 	verbose     bool
 	content     string
 	contentType string
+	headers     []string
 }
 
 func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, responseCodeGeneratorFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer) {
