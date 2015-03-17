@@ -96,6 +96,7 @@ func (instance *DefaultEnanosHttpHandlerFactory) Server_Error(w http.ResponseWri
 }
 
 func (instance *DefaultEnanosHttpHandlerFactory) Content_Size(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", instance.config.contentType)
 	for _, responseHeader := range instance.config.headers {
 		split := strings.Split(responseHeader, ":")
 		w.Header().Set(split[0], split[1])
