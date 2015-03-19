@@ -42,6 +42,7 @@ func TestMain(m *testing.M) {
 	testHeaders = []string{
 		"Age:12",
 		"Content-Length:101",
+		"Content-Type:" + testContentType,
 	}
 	go func() {
 		config := Config{PORT, false, testContent, testContentType, testHeaders}
@@ -93,6 +94,7 @@ var _ = Describe("Enanos Server:", func() {
 			resp, _ := SendHelloWorldByHttpMethod("GET", url("/success"))
 			defer resp.Body.Close()
 			contentType := resp.Header.Get("content-type")
+			fmt.Println(fmt.Sprintf("Header : %v", resp.Header))
 			//assert.Equal(t, contentType, testContentType)
 			Expect(contentType).To(Equal(testContentType))
 		})
