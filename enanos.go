@@ -20,6 +20,7 @@ var (
 
 type Config struct {
 	port    int
+	host    string
 	verbose bool
 	content string
 	headers []string
@@ -33,7 +34,7 @@ func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, res
 	if config.verbose {
 		handlerFactory = &VerboseHttpHandler{handlerFactory}
 	}
-	server := goSimpleHttp.NewSimpleHttpServer(config.port, "localhost")
+	server := goSimpleHttp.NewSimpleHttpServer(config.port, config.host)
 	server.OnStopped(func() {
 		if shouldStop {
 			wg.Done()
