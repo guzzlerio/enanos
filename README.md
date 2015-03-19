@@ -51,3 +51,9 @@ When verbose mode is set, the response time and the requested path is sent to ST
   /defined?code=<code>  - will return the specified http status code
 ```
 
+## Support HTTP Codes
+
+3XX = 300, 301, 302, 303, 304, 305, 307
+4XX = 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417
+5XX = 500, 501, 502, 503, 504, 505
+
