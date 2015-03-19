@@ -15,20 +15,20 @@ Enanos currently only supports being ran as a command line application.
 ## Configuration
 ```bash
 Flags:
-  --help              Show help.
-  --verbose           Enable verbose mode.
-  -p, --port=8000     the port to host the server on
-  --min-sleep="1s"    the minimum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...
-  --max-sleep="60s"   the maximum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...
-  --random-sleep      whether to sleep a random time between min and max or just the max
-  --min-size="10KB"   the minimum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...
-  --max-size="100KB"  the maximum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...
-  --random-size       whether to return a random sized payload between min and max or just max
+  --help               Show help.
+  --verbose            Enable verbose mode.
+  -p, --port=8000      the port to host the server on
+  --host="0.0.0.0"     this host for enanos to bind to
+  --min-sleep="1s"     the minimum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...
+  --max-sleep="60s"    the maximum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...
+  --random-sleep       whether to sleep a random time between min and max or just the max
+  --min-size="10KB"    the minimum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...
+  --max-size="100KB"   the maximum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...
+  --random-size        whether to return a random sized payload between min and max or just max
   --content="hello world"  
-                      the content to return for OK responses
-  --content-type="text/plain"  
-                      the content type to return for OK responses
-  --version           Show application version.
+                       the content to return for OK responses
+  -H, --header=HEADER  response headers to be returned. Key:Value
+  --version            Show application version.
 ```
 
 ### Verbose mode
