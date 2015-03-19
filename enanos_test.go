@@ -45,7 +45,7 @@ func TestMain(m *testing.M) {
 		"Content-Type:" + testContentType,
 	}
 	go func() {
-		config := Config{PORT, false, testContent, testContentType, testHeaders}
+		config := Config{PORT, false, testContent, testHeaders}
 		StartEnanos(config, fakeResponseBodyGenerator, factory, snoozer)
 	}()
 	os.Exit(m.Run())
@@ -164,6 +164,7 @@ var _ = Describe("Enanos Server:", func() {
 						resp, _ := SendHelloWorldByHttpMethod(method, url("/redirect"))
 						defer resp.Body.Close()
 						Expect(resp.StatusCode).To(Equal(code))
+						Expect(resp.Header.Get("location")).To(Equal("/redirect"))
 					})
 				}
 			})
