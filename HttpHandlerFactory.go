@@ -34,7 +34,7 @@ func monitorTime(handler http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 	fmt.Println(fmt.Sprintf("%-15s%-4d%s", elapsed, writer.Code, r.URL.Path))
 }
 
-type HttpHandlerFactory interface {
+type HttpHandler interface {
 	Success(w http.ResponseWriter, r *http.Request)
 	Server_Error(w http.ResponseWriter, r *http.Request)
 	Content_Size(w http.ResponseWriter, r *http.Request)
@@ -45,7 +45,7 @@ type HttpHandlerFactory interface {
 }
 
 type VerboseHttpHandler struct {
-	handler HttpHandlerFactory
+	handler HttpHandler
 }
 
 func (instance *VerboseHttpHandler) Success(w http.ResponseWriter, r *http.Request) {
@@ -146,7 +146,7 @@ func (instance *DefaultEnanosHttpHandlerFactory) Defined(w http.ResponseWriter, 
 	}
 }
 
-func NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator ResponseBodyGenerator, responseCodeGenFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer, config Config) *DefaultEnanosHttpHandlerFactory {
+func NewDefultHttpHandler(responseBodyGenerator ResponseBodyGenerator, responseCodeGenFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer, config Config) *DefaultEnanosHttpHandlerFactory {
 	responseCodes_300 := responseCodeGenFactory(responseCodes_300)
 	responseCodes_400 := responseCodeGenFactory(responseCodes_400)
 	responseCodes_500 := responseCodeGenFactory(responseCodes_500)

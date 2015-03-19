@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/REAANDREW/goSimpleHttp"
+	"net/http"
 	"sync"
+	"time"
 )
 
 const (
@@ -24,15 +27,22 @@ type Config struct {
 }
 
 func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, responseCodeGeneratorFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer) {
+	var shouldStop bool = true
 	var wg sync.WaitGroup
 	wg.Add(1)
-	var handlerFactory HttpHandlerFactory = NewDefaultEnanosHttpHandlerFactory(responseBodyGenerator, responseCodeGeneratorFactory, snoozer, config)
+	var handlerFactory HttpHandler = NewDefultHttpHandler(responseBodyGenerator, responseCodeGeneratorFactory, snoozer, config)
 	if config.verbose {
 		handlerFactory = &VerboseHttpHandler{handlerFactory}
 	}
 	server := goSimpleHttp.NewSimpleHttpServer(config.port, "localhost")
 	server.OnStopped(func() {
-		wg.Done()
+		if shouldStop {
+			wg.Done()
+		} else {
+			time.Sleep(5 * time.Second)
+			server.Start()
+			shouldStop = true
+		}
 	})
 
 	urlToHandlers := map[string]goSimpleHttp.HttpHandler{
@@ -43,6 +53,11 @@ func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, res
 		"/redirect":     handlerFactory.Redirect,
 		"/client_error": handlerFactory.Client_Error,
 		"/defined":      handlerFactory.Defined,
+		"/dead_or_alive": func(w http.ResponseWriter, t *http.Request) {
+			fmt.Println("Server stopping")
+			shouldStop = false
+			server.Stop()
+		},
 	}
 
 	for key, value := range urlToHandlers {
