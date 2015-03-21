@@ -72,7 +72,6 @@ var _ = Describe("Enanos Server:", func() {
 				It(fmt.Sprintf("%s returns 200", method), func() {
 					resp, _ := SendHelloWorldByHttpMethod(method, url("/success"))
 					defer resp.Body.Close()
-					//assert.Equal(t, http.StatusOK, resp.StatusCode)
 					Expect(resp.StatusCode).To(Equal(http.StatusOK))
 				})
 			})
@@ -82,7 +81,6 @@ var _ = Describe("Enanos Server:", func() {
 			resp, _ := SendHelloWorldByHttpMethod("GET", url("/success"))
 			defer resp.Body.Close()
 			body, _ := ioutil.ReadAll(resp.Body)
-			//assert.Equal(t, string(body), testContent)
 			Expect(string(body)).To(Equal(testContent))
 		})
 
@@ -90,8 +88,6 @@ var _ = Describe("Enanos Server:", func() {
 			resp, _ := SendHelloWorldByHttpMethod("GET", url("/success"))
 			defer resp.Body.Close()
 			contentType := resp.Header.Get("content-type")
-			fmt.Println(fmt.Sprintf("Header : %v", resp.Header))
-			//assert.Equal(t, contentType, testContentType)
 			Expect(contentType).To(Equal(testContentType))
 		})
 	})
