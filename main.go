@@ -73,8 +73,6 @@ func main() {
 		snoozer = NewMaxSnoozer(maxSleepValue)
 	}
 
-	fmt.Printf("%v\n", *randomSleep)
-
 	config := Config{*port, *host, *verbose, *content, *headers}
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
 	StartEnanos(config, responseBodyGenerator, responseCodeGenerator, snoozer)
