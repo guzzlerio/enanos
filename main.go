@@ -27,7 +27,7 @@ var (
 )
 
 func main() {
-	kingpin.Version("1.0.0")
+	kingpin.Version("1.1.0")
 	kingpin.CommandLine.Help = `Enanos is an investigation tool in the form of a HTTP server with several endpoints that can be used to substitute the actual http service dependencies of a system.  This tool allows you to see how a system will perform against varying un-stable http services, each which exhibit different effects.
 	
 	/success		- will return a 200 response code
