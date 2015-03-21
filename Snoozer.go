@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -13,6 +14,7 @@ type MaxSnoozer struct {
 }
 
 func (instance *MaxSnoozer) Snooze() {
+	fmt.Println("Sleeping")
 	time.Sleep(instance.Max)
 }
 

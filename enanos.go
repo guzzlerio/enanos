@@ -26,11 +26,11 @@ type Config struct {
 	headers []string
 }
 
-func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, responseCodeGeneratorFactory func(codes []int) ResponseCodeGenerator, snoozer Snoozer) {
+func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, responseCodeGenerator ResponseCodeGenerator, snoozer Snoozer) {
 	var shouldStop bool = true
 	var wg sync.WaitGroup
 	wg.Add(1)
-	var handlerFactory HttpHandler = NewDefultHttpHandler(responseBodyGenerator, responseCodeGeneratorFactory, snoozer, config)
+	var handlerFactory HttpHandler = NewDefultHttpHandler(responseBodyGenerator, responseCodeGenerator, snoozer, config)
 	if config.verbose {
 		handlerFactory = &VerboseHttpHandler{handlerFactory}
 	}

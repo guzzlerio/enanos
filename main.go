@@ -18,17 +18,13 @@ var (
 	host        = kingpin.Flag("host", "this host for enanos to bind to").Default("0.0.0.0").String()
 	minSleep    = kingpin.Flag("min-sleep", "the minimum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("1s").String()
 	maxSleep    = kingpin.Flag("max-sleep", "the maximum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("60s").String()
-	randomSleep = kingpin.Flag("random-sleep", "whether to sleep a random time between min and max or just the max").Default("true").Bool()
+	randomSleep = kingpin.Flag("random-sleep", "whether to sleep a random time between min and max or just the max").Default("false").Bool()
 	minSize     = kingpin.Flag("min-size", "the minimum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...").Default("10KB").String()
 	maxSize     = kingpin.Flag("max-size", "the maximum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...").Default("100KB").String()
-	randomSize  = kingpin.Flag("random-size", "whether to return a random sized payload between min and max or just max").Default("true").Bool()
+	randomSize  = kingpin.Flag("random-size", "whether to return a random sized payload between min and max or just max").Default("false").Bool()
 	content     = kingpin.Flag("content", "the content to return for OK responses").Default("hello world").String()
 	headers     = kingpin.Flag("header", "response headers to be returned. Key:Value").Short('H').Strings()
 )
-
-func responseCodeGeneratorFactory(codes []int) ResponseCodeGenerator {
-	return NewRandomResponseCodeGenerator(codes)
-}
 
 func main() {
 	kingpin.Version("1.0.0")
@@ -47,6 +43,7 @@ func main() {
 	kingpin.Parse()
 	var snoozer Snoozer
 	var responseBodyGenerator ResponseBodyGenerator
+	var responseCodeGenerator ResponseCodeGenerator = NewRandomResponseCodeGenerator(responseCodes_300, responseCodes_400, responseCodes_500)
 
 	minSizeValue, minSizeErr := humanize.ParseBytes(*minSize)
 	maxSizeValue, maxSizeErr := humanize.ParseBytes(*maxSize)
@@ -76,7 +73,9 @@ func main() {
 		snoozer = NewMaxSnoozer(maxSleepValue)
 	}
 
+	fmt.Printf("%v\n", *randomSleep)
+
 	config := Config{*port, *host, *verbose, *content, *headers}
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
-	StartEnanos(config, responseBodyGenerator, responseCodeGeneratorFactory, snoozer)
+	StartEnanos(config, responseBodyGenerator, responseCodeGenerator, snoozer)
 }

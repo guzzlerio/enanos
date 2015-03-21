@@ -25,10 +25,6 @@ var (
 	testHeaders               []string
 )
 
-func factory(codes []int) ResponseCodeGenerator {
-	return responseCodeGenerator
-}
-
 const (
 	PORT int = 8000
 )
@@ -46,7 +42,7 @@ func TestMain(m *testing.M) {
 	}
 	go func() {
 		config := Config{PORT, "localhost", false, testContent, testHeaders}
-		StartEnanos(config, fakeResponseBodyGenerator, factory, snoozer)
+		StartEnanos(config, fakeResponseBodyGenerator, responseCodeGenerator, snoozer)
 	}()
 	os.Exit(m.Run())
 }
