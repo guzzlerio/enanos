@@ -34,6 +34,7 @@ var (
 	deadTime    = kingpin.Flag("dead-time", "the time which the server should remain dead before coming back online").Default("5s").OverrideDefaultFromEnvar(ENV_ENANOS_DEAD_TIME).String()
 	content     = kingpin.Flag("content", "the content to return for OK responses").Default("hello world").String()
 	headers     = kingpin.Flag("header", "response headers to be returned. Key:Value").Short('H').Strings()
+	config      = kingpin.Flag("config", "config file used to configure enanos.  Supported providers include file.").Default("empty").Short('c').String()
 )
 
 func main() {
@@ -60,12 +61,24 @@ func main() {
 	StartEnanos(config, responseBodyGenerator, responseCodeGenerator, snoozer)
 }
 
-func createConfig() Config {
+func parseConfig() Config {
 	parsedDeadTime, err := time.ParseDuration(*deadTime)
 	if err != nil {
 		parsedDeadTime = 5 * time.Millisecond
 	}
 	return Config{*port, *host, *verbose, *content, *headers, parsedDeadTime}
+}
+
+func createConfig() Config {
+	if *config != "empty" {
+		return parseConfig()
+	} else {
+		parsedDeadTime, err := time.ParseDuration(*deadTime)
+		if err != nil {
+			parsedDeadTime = 5 * time.Millisecond
+		}
+		return Config{*port, *host, *verbose, *content, *headers, parsedDeadTime}
+	}
 }
 
 func createSnoozer() Snoozer {
