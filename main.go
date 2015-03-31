@@ -13,7 +13,7 @@ const (
 )
 
 var (
-	verbose     = kingpin.Flag("verbose", "Enable verbose mode.").Bool()
+	verbose     = kingpin.Flag("verbose", "Enable verbose mode.").Short('v').Bool()
 	port        = kingpin.Flag("port", "the port to host the server on").Default("8000").Short('p').OverrideDefaultFromEnvar(ENV_ENANOS_PORT).Int()
 	host        = kingpin.Flag("host", "this host for enanos to bind to").Default("0.0.0.0").String()
 	minSleep    = kingpin.Flag("min-sleep", "the minimum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("1s").String()
