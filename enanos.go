@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/REAANDREW/goSimpleHttp"
 	"net/http"
 	"sync"
@@ -19,11 +18,12 @@ var (
 )
 
 type Config struct {
-	port    int
-	host    string
-	verbose bool
-	content string
-	headers []string
+	port     int
+	host     string
+	verbose  bool
+	content  string
+	headers  []string
+	deadTime time.Duration
 }
 
 func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, responseCodeGenerator ResponseCodeGenerator, snoozer Snoozer) {
@@ -39,7 +39,7 @@ func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, res
 		if shouldStop {
 			wg.Done()
 		} else {
-			time.Sleep(5 * time.Second)
+			time.Sleep(config.deadTime)
 			server.Start()
 			shouldStop = true
 		}
@@ -54,7 +54,6 @@ func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, res
 		"/client_error": handlerFactory.Client_Error,
 		"/defined":      handlerFactory.Defined,
 		"/dead_or_alive": func(w http.ResponseWriter, t *http.Request) {
-			fmt.Println("Server stopping")
 			shouldStop = false
 			server.Stop()
 		},

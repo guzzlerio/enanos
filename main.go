@@ -22,6 +22,7 @@ var (
 	minSize     = kingpin.Flag("min-size", "the minimum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...").Default("10KB").String()
 	maxSize     = kingpin.Flag("max-size", "the maximum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...").Default("100KB").String()
 	randomSize  = kingpin.Flag("random-size", "whether to return a random sized payload between min and max or just max").Default("false").Bool()
+	deadTime    = kingpin.Flag("dead-time", "the time which the server should remain dead before coming back online").Default("5s").String()
 	content     = kingpin.Flag("content", "the content to return for OK responses").Default("hello world").String()
 	headers     = kingpin.Flag("header", "response headers to be returned. Key:Value").Short('H').Strings()
 )
@@ -73,7 +74,11 @@ func main() {
 		snoozer = NewMaxSnoozer(maxSleepValue)
 	}
 
-	config := Config{*port, *host, *verbose, *content, *headers}
+	parsedDeadTime, err := time.ParseDuration(*deadTime)
+	if err != nil {
+		parsedDeadTime = 5 * time.Millisecond
+	}
+	config := Config{*port, *host, *verbose, *content, *headers, parsedDeadTime}
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
 	StartEnanos(config, responseBodyGenerator, responseCodeGenerator, snoozer)
 }

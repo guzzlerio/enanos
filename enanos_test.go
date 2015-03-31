@@ -41,7 +41,7 @@ func TestMain(m *testing.M) {
 		"Content-Type:" + testContentType,
 	}
 	go func() {
-		config := Config{PORT, "localhost", false, testContent, testHeaders}
+		config := Config{PORT, "localhost", false, testContent, testHeaders, 5 * time.Millisecond}
 		StartEnanos(config, fakeResponseBodyGenerator, responseCodeGenerator, snoozer)
 	}()
 	os.Exit(m.Run())
