@@ -42,24 +42,24 @@ func main() {
 	/defined?code=<code>	- will return the specified http status code
 	`
 	kingpin.Parse()
-	var snoozer Snoozer
-	var responseBodyGenerator ResponseBodyGenerator
+
+	var snoozer Snoozer = createSnoozer()
+	var responseBodyGenerator ResponseBodyGenerator = createResponseBodyGenerator()
 	var responseCodeGenerator ResponseCodeGenerator = NewRandomResponseCodeGenerator(responseCodes_300, responseCodes_400, responseCodes_500)
+	var config Config = createConfig()
+	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
+	StartEnanos(config, responseBodyGenerator, responseCodeGenerator, snoozer)
+}
 
-	minSizeValue, minSizeErr := humanize.ParseBytes(*minSize)
-	maxSizeValue, maxSizeErr := humanize.ParseBytes(*maxSize)
-
-	if minSizeErr != nil || maxSizeErr != nil {
-		fmt.Errorf("Invalid size specified for min or max size")
-		os.Exit(1)
+func createConfig() Config {
+	parsedDeadTime, err := time.ParseDuration(*deadTime)
+	if err != nil {
+		parsedDeadTime = 5 * time.Millisecond
 	}
+	return Config{*port, *host, *verbose, *content, *headers, parsedDeadTime}
+}
 
-	if *randomSize {
-		responseBodyGenerator = NewRandomResponseBodyGenerator(int(minSizeValue), int(maxSizeValue))
-	} else {
-		responseBodyGenerator = NewMaxResponseBodyGenerator(int(maxSizeValue))
-	}
-
+func createSnoozer() Snoozer {
 	minSleepValue, minSleepErr := time.ParseDuration(*minSleep)
 	maxSleepValue, maxSleepErr := time.ParseDuration(*maxSleep)
 
@@ -69,16 +69,24 @@ func main() {
 	}
 
 	if *randomSleep {
-		snoozer = NewRandomSnoozer(minSleepValue, maxSleepValue)
+		return NewRandomSnoozer(minSleepValue, maxSleepValue)
 	} else {
-		snoozer = NewMaxSnoozer(maxSleepValue)
+		return NewMaxSnoozer(maxSleepValue)
+	}
+}
+
+func createResponseBodyGenerator() ResponseBodyGenerator {
+	minSizeValue, minSizeErr := humanize.ParseBytes(*minSize)
+	maxSizeValue, maxSizeErr := humanize.ParseBytes(*maxSize)
+
+	if minSizeErr != nil || maxSizeErr != nil {
+		fmt.Errorf("Invalid size specified for min or max size")
+		os.Exit(1)
 	}
 
-	parsedDeadTime, err := time.ParseDuration(*deadTime)
-	if err != nil {
-		parsedDeadTime = 5 * time.Millisecond
+	if *randomSize {
+		return NewRandomResponseBodyGenerator(int(minSizeValue), int(maxSizeValue))
+	} else {
+		return NewMaxResponseBodyGenerator(int(maxSizeValue))
 	}
-	config := Config{*port, *host, *verbose, *content, *headers, parsedDeadTime}
-	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
-	StartEnanos(config, responseBodyGenerator, responseCodeGenerator, snoozer)
 }
