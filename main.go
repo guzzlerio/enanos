@@ -9,20 +9,29 @@ import (
 )
 
 const (
-	ENV_ENANOS_PORT string = "ENANOS_PORT"
+	ENV_ENANOS_PORT         string = "ENANOS_PORT"
+	ENV_ENANOS_VERBOSE      string = "ENANOS_VERBOSE"
+	ENV_ENANOS_HOST         string = "ENANOS_HOST"
+	ENV_ENANOS_MIN_SLEEP    string = "ENANOS_MIN_SLEEP"
+	ENV_ENANOS_MAX_SLEEP    string = "ENANOS_MAX_SLEEP"
+	ENV_ENANOS_RANDOM_SLEEP string = "ENANOS_RANDOM_SLEEP"
+	ENV_ENANOS_MIN_SIZE     string = "ENANOS_MIN_SIZE"
+	ENV_ENANOS_MAX_SIZE     string = "ENANOS_MAX_SIZE"
+	ENV_ENANOS_RANDOM_SIZE  string = "ENANOS_RANDOM_SIZE"
+	ENV_ENANOS_DEAD_TIME    string = "ENANOS_DEAD_TIME"
 )
 
 var (
-	verbose     = kingpin.Flag("verbose", "Enable verbose mode.").Short('v').Bool()
+	verbose     = kingpin.Flag("verbose", "Enable verbose mode.").Short('v').OverrideDefaultFromEnvar(ENV_ENANOS_VERBOSE).Bool()
 	port        = kingpin.Flag("port", "the port to host the server on").Default("8000").Short('p').OverrideDefaultFromEnvar(ENV_ENANOS_PORT).Int()
-	host        = kingpin.Flag("host", "this host for enanos to bind to").Default("0.0.0.0").String()
-	minSleep    = kingpin.Flag("min-sleep", "the minimum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("1s").String()
-	maxSleep    = kingpin.Flag("max-sleep", "the maximum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("60s").String()
-	randomSleep = kingpin.Flag("random-sleep", "whether to sleep a random time between min and max or just the max").Default("false").Bool()
-	minSize     = kingpin.Flag("min-size", "the minimum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...").Default("10KB").String()
-	maxSize     = kingpin.Flag("max-size", "the maximum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...").Default("100KB").String()
-	randomSize  = kingpin.Flag("random-size", "whether to return a random sized payload between min and max or just max").Default("false").Bool()
-	deadTime    = kingpin.Flag("dead-time", "the time which the server should remain dead before coming back online").Default("5s").String()
+	host        = kingpin.Flag("host", "this host for enanos to bind to").Default("0.0.0.0").OverrideDefaultFromEnvar(ENV_ENANOS_HOST).String()
+	minSleep    = kingpin.Flag("min-sleep", "the minimum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("1s").OverrideDefaultFromEnvar(ENV_ENANOS_MIN_SLEEP).String()
+	maxSleep    = kingpin.Flag("max-sleep", "the maximum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...").Default("60s").OverrideDefaultFromEnvar(ENV_ENANOS_MAX_SLEEP).String()
+	randomSleep = kingpin.Flag("random-sleep", "whether to sleep a random time between min and max or just the max").Default("false").OverrideDefaultFromEnvar(ENV_ENANOS_RANDOM_SLEEP).Bool()
+	minSize     = kingpin.Flag("min-size", "the minimum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...").Default("10KB").OverrideDefaultFromEnvar(ENV_ENANOS_MIN_SIZE).String()
+	maxSize     = kingpin.Flag("max-size", "the maximum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...").Default("100KB").OverrideDefaultFromEnvar(ENV_ENANOS_MAX_SIZE).String()
+	randomSize  = kingpin.Flag("random-size", "whether to return a random sized payload between min and max or just max").Default("false").OverrideDefaultFromEnvar(ENV_ENANOS_RANDOM_SIZE).Bool()
+	deadTime    = kingpin.Flag("dead-time", "the time which the server should remain dead before coming back online").Default("5s").OverrideDefaultFromEnvar(ENV_ENANOS_DEAD_TIME).String()
 	content     = kingpin.Flag("content", "the content to return for OK responses").Default("hello world").String()
 	headers     = kingpin.Flag("header", "response headers to be returned. Key:Value").Short('H').Strings()
 )
