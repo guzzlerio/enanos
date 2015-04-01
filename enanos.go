@@ -17,16 +17,7 @@ var (
 	responseCodes_500 []int = []int{500, 501, 502, 503, 504, 505}
 )
 
-type Config struct {
-	port     int
-	host     string
-	verbose  bool
-	content  string
-	headers  []string
-	deadTime time.Duration
-}
-
-func StartEnanos(config Config, responseBodyGenerator ResponseBodyGenerator, responseCodeGenerator ResponseCodeGenerator, snoozer Snoozer) {
+func StartEnanos(config Configuration, responseBodyGenerator ResponseBodyGenerator, responseCodeGenerator ResponseCodeGenerator, snoozer Snoozer) {
 	var shouldStop bool = true
 	var wg sync.WaitGroup
 	wg.Add(1)

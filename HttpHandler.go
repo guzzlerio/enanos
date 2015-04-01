@@ -74,10 +74,10 @@ type DefaultEnanosHttpHandlerFactory struct {
 	responseBodyGenerator ResponseBodyGenerator
 	responseCodeGenerator ResponseCodeGenerator
 	snoozer               Snoozer
-	config                Config
+	config                Configuration
 }
 
-func setHeaders(w http.ResponseWriter, config Config) {
+func setHeaders(w http.ResponseWriter, config Configuration) {
 	for _, responseHeader := range config.headers {
 		split := strings.Split(responseHeader, ":")
 		w.Header().Set(split[0], split[1])
@@ -143,6 +143,6 @@ func (instance *DefaultEnanosHttpHandlerFactory) Defined(w http.ResponseWriter, 
 	}
 }
 
-func NewDefultHttpHandler(responseBodyGenerator ResponseBodyGenerator, responseCodeGenerator ResponseCodeGenerator, snoozer Snoozer, config Config) *DefaultEnanosHttpHandlerFactory {
+func NewDefultHttpHandler(responseBodyGenerator ResponseBodyGenerator, responseCodeGenerator ResponseCodeGenerator, snoozer Snoozer, config Configuration) *DefaultEnanosHttpHandlerFactory {
 	return &DefaultEnanosHttpHandlerFactory{responseBodyGenerator, responseCodeGenerator, snoozer, config}
 }

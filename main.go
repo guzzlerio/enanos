@@ -56,20 +56,27 @@ func main() {
 	var snoozer Snoozer = createSnoozer()
 	var responseBodyGenerator ResponseBodyGenerator = createResponseBodyGenerator()
 	var responseCodeGenerator ResponseCodeGenerator = NewRandomResponseCodeGenerator(responseCodes_300, responseCodes_400, responseCodes_500)
-	var config Config = createConfig()
+	var config Configuration = createConfig()
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
 	StartEnanos(config, responseBodyGenerator, responseCodeGenerator, snoozer)
 }
 
-func parseConfig() Config {
+func parseConfig() Configuration {
 	parsedDeadTime, err := time.ParseDuration(*deadTime)
 	if err != nil {
 		parsedDeadTime = 5 * time.Millisecond
 	}
-	return Config{*port, *host, *verbose, *content, *headers, parsedDeadTime}
+	var config = Configuration{}
+	config.port = *port
+	config.host = *host
+	config.verbose = *verbose
+	config.content = *content
+	config.headers = *headers
+	config.deadTime = parsedDeadTime
+	return config
 }
 
-func createConfig() Config {
+func createConfig() Configuration {
 	if *config != "empty" {
 		return parseConfig()
 	} else {
@@ -77,7 +84,14 @@ func createConfig() Config {
 		if err != nil {
 			parsedDeadTime = 5 * time.Millisecond
 		}
-		return Config{*port, *host, *verbose, *content, *headers, parsedDeadTime}
+		var config = Configuration{}
+		config.port = *port
+		config.host = *host
+		config.verbose = *verbose
+		config.content = *content
+		config.headers = *headers
+		config.deadTime = parsedDeadTime
+		return config
 	}
 }
 
