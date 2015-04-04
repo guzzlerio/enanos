@@ -1,0 +1,6 @@
+enanos:
+    build: .
+    environment:
+        - ENANOS_VERBOSE=true
+    ports:
+        - "8000:8000"
