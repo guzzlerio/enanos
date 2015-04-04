@@ -13,7 +13,7 @@ See [Releases](https://github.com/REAANDREW/enanos/releases)
 Enanos currently only supports being ran as a command line application.  
 
 ## Configuration
-```bash
+```shell
 Flags:
  --help               Show help.
   -v, --verbose        Enable verbose mode.
@@ -32,6 +32,7 @@ Flags:
   -c, --config="empty"  
                        config file used to configure enanos. Supported providers include file.
   --version            Show application version.
+```
 
 ### Configuration file
 
@@ -54,17 +55,16 @@ Currently only file based configuration is supported in YAML format.  A sample c
 
 To use a configuration file the (config|c) command line arg should be supplied referencing a YAML file which exists
 
-```
 
 ### Verbose mode
 
 When verbose mode is set, the response time and the requested path is sent to STDOUT in the following format:
-```bash
+```shell
 <formatted request duration> <response code> <requested path>
 ```
 
 ## Availabile endpoints
-```bash
+```shell
   /success              - will return a 200 response code
   /server_error         - will return a random 5XX response code 
   /content_size         - will return a 200 response code but a response body with a size between <minSize> and <maxSize>.  The content returned will be random or a mangled version of the content which has been configured to return i.e. it cannot guarantee to meet any content-types configured in that it will be malformed.
