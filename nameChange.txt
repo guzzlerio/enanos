@@ -1,0 +1,7 @@
+happy = success
+grumpy = server_error
+sneezy = content
+sleepy = latency
+bashful = redirect
+dopey = client_error
+doc = alive
