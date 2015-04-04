@@ -83,27 +83,3 @@ type Configuration struct {
 	maxSize    uint64
 	randomSize bool
 }
-
-func (instance *Configuration) Snoozer() Snoozer {
-	if *randomSleep {
-		return NewRandomSnoozer(instance.minWait, instance.maxWait)
-	} else {
-		return NewMaxSnoozer(maxSleepValue)
-	}
-}
-
-func createResponseBodyGenerator() ResponseBodyGenerator {
-	minSizeValue, minSizeErr := humanize.ParseBytes(*minSize)
-	maxSizeValue, maxSizeErr := humanize.ParseBytes(*maxSize)
-
-	if minSizeErr != nil || maxSizeErr != nil {
-		fmt.Errorf("Invalid size specified for min or max size")
-		os.Exit(1)
-	}
-
-	if *randomSize {
-		return NewRandomResponseBodyGenerator(int(minSizeValue), int(maxSizeValue))
-	} else {
-		return NewMaxResponseBodyGenerator(int(maxSizeValue))
-	}
-}
