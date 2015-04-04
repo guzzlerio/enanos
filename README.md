@@ -15,8 +15,8 @@ Enanos currently only supports being ran as a command line application.
 ## Configuration
 ```bash
 Flags:
-  --help               Show help.
-  --verbose            Enable verbose mode.
+ --help               Show help.
+  -v, --verbose        Enable verbose mode.
   -p, --port=8000      the port to host the server on
   --host="0.0.0.0"     this host for enanos to bind to
   --min-sleep="1s"     the minimum sleep time for the wait endpoint e.g. 5ms, 5s, 5m etc...
@@ -25,10 +25,35 @@ Flags:
   --min-size="10KB"    the minimum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...
   --max-size="100KB"   the maximum size of response body for the content_size endpoint e.g. 5B, 5KB, 5MB etc...
   --random-size        whether to return a random sized payload between min and max or just max
+  --dead-time="5s"     the time which the server should remain dead before coming back online
   --content="hello world"  
                        the content to return for OK responses
   -H, --header=HEADER  response headers to be returned. Key:Value
+  -c, --config="empty"  
+                       config file used to configure enanos. Supported providers include file.
   --version            Show application version.
+
+### Configuration file
+
+Currently only file based configuration is supported in YAML format.  A sample configuration would be:
+
+```yaml
+  port: 8080
+  host: 0.0.0.0
+  verbose: true
+  content: Hello World
+  deadtime: 10s
+  minwait: 1s
+  maxwait: 60s
+  randomwait: false 
+  minsize: 1KB
+  maxsize: 1MB
+  randomsize: true
+  headers: ["Age:1","Content-type:text/plain"]
+```
+
+To use a configuration file the (config|c) command line arg should be supplied referencing a YAML file which exists
+
 ```
 
 ### Verbose mode

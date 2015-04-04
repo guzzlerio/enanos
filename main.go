@@ -40,6 +40,9 @@ var (
 func main() {
 	kingpin.Version("1.2.0")
 	kingpin.CommandLine.Help = `Enanos is an investigation tool in the form of a HTTP server with several endpoints that can be used to substitute the actual http service dependencies of a system.  This tool allows you to see how a system will perform against varying un-stable http services, each which exhibit different effects.
+
+	Endpoints
+	=========
 	
 	/success		- will return a 200 response code
 	/server_error		- will return a random 5XX response code 
@@ -50,6 +53,26 @@ func main() {
 	/dead_or_alive	- will kill the server and only bring it back online after configured amount of time (ms) has passed
 
 	/defined?code=<code>	- will return the specified http status code
+
+	Configuration File
+	==================
+
+	Currently only file based configuration is supported in YAML format.  A sample configuration would be:
+
+	port: 8080
+	host: 0.0.0.0
+	verbose: true
+	content: Hello World
+	deadtime: 10s
+	minwait: 1s
+	maxwait: 60s
+	randomwait: false 
+	minsize: 1KB
+	maxsize: 1MB
+	randomsize: true
+	headers: ["Age:1","Content-type:text/plain"]
+
+	To use a configuration file the (config|c) command line arg should be supplied referencing a YAML file which exists	
 	`
 	kingpin.Parse()
 
