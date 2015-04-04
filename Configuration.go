@@ -3,22 +3,25 @@ package main
 import (
 	"fmt"
 	"github.com/dustin/go-humanize"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"time"
 )
 
 type CommandLineArgs struct {
-	port       int
-	host       string
-	verbose    bool
-	content    string
-	headers    []string
-	deadTime   string
-	minWait    string
-	maxWait    string
-	randomWait bool
-	minSize    string
-	maxSize    string
-	randomSize bool
+	Port       int
+	Host       string
+	Verbose    bool
+	Content    string
+	DeadTime   string
+	MinWait    string
+	MaxWait    string
+	RandomWait bool
+	MinSize    string
+	MaxSize    string
+	RandomSize bool
+	Config     string
+	Headers    []string
 }
 
 type ConfigurationReader interface {
@@ -26,24 +29,34 @@ type ConfigurationReader interface {
 }
 
 type ArgsConfigurationReader struct {
-	args        CommandLineArgs
+	args        *CommandLineArgs
 	defaultTime time.Duration
 }
 
 func (instance *ArgsConfigurationReader) Read() Configuration {
 	config := Configuration{}
-	config.port = instance.args.port
-	config.host = instance.args.host
-	config.verbose = instance.args.verbose
-	config.content = instance.args.content
-	config.headers = instance.args.headers
-	config.deadTime = parseTime(instance.args.deadTime)
-	config.minWait = parseTime(instance.args.minWait)
-	config.maxWait = parseTime(instance.args.maxWait)
-	config.randomWait = instance.args.randomWait
-	config.minSize = parseSize(instance.args.minSize)
-	config.maxSize = parseSize(instance.args.maxSize)
-	config.randomSize = instance.args.randomSize
+	if instance.args.Config != "" {
+		data, err := ioutil.ReadFile(instance.args.Config)
+		if err != nil {
+			fmt.Errorf("Cannot read the path for the config file")
+		}
+		err = yaml.Unmarshal(data, instance.args)
+		if err != nil {
+			fmt.Errorf("Cannot read the config yml")
+		}
+	}
+	config.port = instance.args.Port
+	config.host = instance.args.Host
+	config.verbose = instance.args.Verbose
+	config.content = instance.args.Content
+	config.headers = instance.args.Headers
+	config.deadTime = parseTime(instance.args.DeadTime)
+	config.minWait = parseTime(instance.args.MinWait)
+	config.maxWait = parseTime(instance.args.MaxWait)
+	config.randomWait = instance.args.RandomWait
+	config.minSize = parseSize(instance.args.MinSize)
+	config.maxSize = parseSize(instance.args.MaxSize)
+	config.randomSize = instance.args.RandomSize
 	return config
 }
 
@@ -65,7 +78,7 @@ func parseSize(value string) uint64 {
 	return parsedValue
 }
 
-func NewArgsConfigurationReader(args CommandLineArgs) *ArgsConfigurationReader {
+func NewArgsConfigurationReader(args *CommandLineArgs) *ArgsConfigurationReader {
 	return &ArgsConfigurationReader{args, 5 * time.Second}
 }
 

@@ -54,23 +54,23 @@ func main() {
 	kingpin.Parse()
 
 	var commandLineArgs = CommandLineArgs{}
-	commandLineArgs.content = *content
-	commandLineArgs.deadTime = *deadTime
-	commandLineArgs.headers = *headers
-	commandLineArgs.host = *host
-	commandLineArgs.maxSize = *maxSize
-	commandLineArgs.maxWait = *maxSleep
-	commandLineArgs.minSize = *minSize
-	commandLineArgs.minWait = *minSleep
-	commandLineArgs.port = *port
-	commandLineArgs.randomSize = *randomSize
-	commandLineArgs.randomWait = *randomSleep
-	commandLineArgs.verbose = *verbose
+	commandLineArgs.Content = *content
+	commandLineArgs.DeadTime = *deadTime
+	commandLineArgs.Headers = *headers
+	commandLineArgs.Host = *host
+	commandLineArgs.MaxSize = *maxSize
+	commandLineArgs.MaxWait = *maxSleep
+	commandLineArgs.MinSize = *minSize
+	commandLineArgs.MinWait = *minSleep
+	commandLineArgs.Port = *port
+	commandLineArgs.RandomSize = *randomSize
+	commandLineArgs.RandomWait = *randomSleep
+	commandLineArgs.Verbose = *verbose
 
 	var snoozer Snoozer = createSnoozer()
 	var responseBodyGenerator ResponseBodyGenerator = createResponseBodyGenerator()
 	var responseCodeGenerator ResponseCodeGenerator = NewRandomResponseCodeGenerator(responseCodes_300, responseCodes_400, responseCodes_500)
-	var argsReader = NewArgsConfigurationReader(commandLineArgs)
+	var argsReader = NewArgsConfigurationReader(&commandLineArgs)
 	var config = argsReader.Read()
 
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
