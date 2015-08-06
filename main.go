@@ -6,6 +6,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v1"
 	"os"
 	"time"
+    "sync"
 )
 
 const (
@@ -19,6 +20,7 @@ const (
 	ENV_ENANOS_MAX_SIZE     string = "ENANOS_MAX_SIZE"
 	ENV_ENANOS_RANDOM_SIZE  string = "ENANOS_RANDOM_SIZE"
 	ENV_ENANOS_DEAD_TIME    string = "ENANOS_DEAD_TIME"
+	ENV_ENANOS_JITTER_TIME    string = "ENANOS_JITTER_TIME"
 )
 
 var (
@@ -34,6 +36,7 @@ var (
 	deadTime    = kingpin.Flag("dead-time", "the time which the server should remain dead before coming back online").Default("5s").OverrideDefaultFromEnvar(ENV_ENANOS_DEAD_TIME).String()
 	content     = kingpin.Flag("content", "the content to return for OK responses").Default("hello world").String()
 	headers     = kingpin.Flag("header", "response headers to be returned. Key:Value").Short('H').Strings()
+    jitterTime      = kingpin.Flag("jitter-time", "the interval at which the server should goup and down").Short('j').Default("0s").OverrideDefaultFromEnvar(ENV_ENANOS_JITTER_TIME).String()
 	config      = kingpin.Flag("config", "config file used to configure enanos.  Supported providers include file.").Default("empty").Short('c').String()
 )
 
@@ -89,6 +92,7 @@ func main() {
 	commandLineArgs.RandomSize = *randomSize
 	commandLineArgs.RandomWait = *randomSleep
 	commandLineArgs.Verbose = *verbose
+    commandLineArgs.JitterTime = *jitterTime
 
 	var snoozer Snoozer = createSnoozer()
 	var responseBodyGenerator ResponseBodyGenerator = createResponseBodyGenerator()
@@ -97,7 +101,16 @@ func main() {
 	var config = argsReader.Read()
 
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
-	StartEnanos(config, responseBodyGenerator, responseCodeGenerator, snoozer)
+    var wg sync.WaitGroup
+    serverFactory := ServerFactory{
+        Config: config,
+        ResponseBodyGenerator: responseBodyGenerator,
+        ResponseCodeGenerator: responseCodeGenerator,
+        Snoozer : snoozer,
+        WaitHandle : wg,
+    }
+    server := serverFactory.CreateServer()
+    server.Start()
 }
 
 func createSnoozer() Snoozer {

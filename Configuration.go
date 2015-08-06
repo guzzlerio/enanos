@@ -22,6 +22,7 @@ type CommandLineArgs struct {
 	RandomSize bool
 	Config     string
 	Headers    []string
+    JitterTime string
 }
 
 type ConfigurationReader interface {
@@ -51,6 +52,7 @@ func (instance *ArgsConfigurationReader) Read() Configuration {
 	config.content = instance.args.Content
 	config.headers = instance.args.Headers
 	config.deadTime = parseTime(instance.args.DeadTime)
+    config.jitterTime = parseTime(instance.args.JitterTime)
 	config.minWait = parseTime(instance.args.MinWait)
 	config.maxWait = parseTime(instance.args.MaxWait)
 	config.randomWait = instance.args.RandomWait
@@ -95,4 +97,5 @@ type Configuration struct {
 	minSize    uint64
 	maxSize    uint64
 	randomSize bool
+    jitterTime time.Duration
 }

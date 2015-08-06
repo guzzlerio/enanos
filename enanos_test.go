@@ -49,7 +49,14 @@ func TestMain(m *testing.M) {
 		config.headers = testHeaders
 		config.deadTime = 5 * time.Millisecond
 
-		StartEnanos(config, fakeResponseBodyGenerator, responseCodeGenerator, snoozer)
+        serverFactory := ServerFactory{
+            Config: config,
+            ResponseBodyGenerator: fakeResponseBodyGenerator,
+            ResponseCodeGenerator: responseCodeGenerator,
+            Snoozer : snoozer,
+        }
+        server := serverFactory.CreateServer()
+        server.Start()
 	}()
 	os.Exit(m.Run())
 }
@@ -189,6 +196,12 @@ var _ = Describe("Enanos Server:", func() {
 	Describe("Doc :", func() {
 		It("GET kills the web server and returns after a set time period", func() {})
 	})
+
+    Describe("Jitter : ", func(){
+        It("returns Bad Gateway when interval elapses", func(){
+             
+        })
+    })
 
 	Describe("Defined", func() {
 		codes := append(responseCodes_300, responseCodes_400...)
