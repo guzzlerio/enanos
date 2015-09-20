@@ -5,8 +5,9 @@ import (
 	"github.com/dustin/go-humanize"
 	"gopkg.in/alecthomas/kingpin.v1"
 	"os"
+	"os/signal"
+	"sync"
 	"time"
-    "sync"
 )
 
 const (
@@ -20,7 +21,7 @@ const (
 	ENV_ENANOS_MAX_SIZE     string = "ENANOS_MAX_SIZE"
 	ENV_ENANOS_RANDOM_SIZE  string = "ENANOS_RANDOM_SIZE"
 	ENV_ENANOS_DEAD_TIME    string = "ENANOS_DEAD_TIME"
-	ENV_ENANOS_JITTER_TIME    string = "ENANOS_JITTER_TIME"
+	ENV_ENANOS_JITTER_TIME  string = "ENANOS_JITTER_TIME"
 )
 
 var (
@@ -36,7 +37,7 @@ var (
 	deadTime    = kingpin.Flag("dead-time", "the time which the server should remain dead before coming back online").Default("5s").OverrideDefaultFromEnvar(ENV_ENANOS_DEAD_TIME).String()
 	content     = kingpin.Flag("content", "the content to return for OK responses").Default("hello world").String()
 	headers     = kingpin.Flag("header", "response headers to be returned. Key:Value").Short('H').Strings()
-    jitterTime      = kingpin.Flag("jitter-time", "the interval at which the server should goup and down").Short('j').Default("0s").OverrideDefaultFromEnvar(ENV_ENANOS_JITTER_TIME).String()
+	jitterTime  = kingpin.Flag("jitter-time", "the interval at which the server should goup and down").Short('j').Default("0s").OverrideDefaultFromEnvar(ENV_ENANOS_JITTER_TIME).String()
 	config      = kingpin.Flag("config", "config file used to configure enanos.  Supported providers include file.").Default("empty").Short('c').String()
 )
 
@@ -92,7 +93,7 @@ func main() {
 	commandLineArgs.RandomSize = *randomSize
 	commandLineArgs.RandomWait = *randomSleep
 	commandLineArgs.Verbose = *verbose
-    commandLineArgs.JitterTime = *jitterTime
+	commandLineArgs.JitterTime = *jitterTime
 
 	var snoozer Snoozer = createSnoozer()
 	var responseBodyGenerator ResponseBodyGenerator = createResponseBodyGenerator()
@@ -101,16 +102,26 @@ func main() {
 	var config = argsReader.Read()
 
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
-    var wg sync.WaitGroup
-    serverFactory := ServerFactory{
-        Config: config,
-        ResponseBodyGenerator: responseBodyGenerator,
-        ResponseCodeGenerator: responseCodeGenerator,
-        Snoozer : snoozer,
-        WaitHandle : wg,
-    }
-    server := serverFactory.CreateServer()
-    server.Start()
+	var wg sync.WaitGroup
+	serverFactory := ServerFactory{
+		Config:                config,
+		ResponseBodyGenerator: responseBodyGenerator,
+		ResponseCodeGenerator: responseCodeGenerator,
+		Snoozer:               snoozer,
+		WaitHandle:            &wg,
+	}
+	server := serverFactory.CreateServer()
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		for _ = range c {
+			server.Stop()
+			close(c)
+		}
+	}()
+	server.Start()
+	wg.Wait()
 }
 
 func createSnoozer() Snoozer {

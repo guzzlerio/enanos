@@ -11,8 +11,8 @@ ENV ENANOS_MAX_SIZE 10KB
 ENV ENANOS_RANDOM_SIZE true
 ENV ENANOS_DEAD_TIME 5s
 
-ADD . /go/src/github.com/REAANDREW/enanos
-RUN go get github.com/REAANDREW/enanos
-RUN go install github.com/REAANDREW/enanos
+ADD . /go/src/github.com/reaandrew/enanos
+RUN go get github.com/reaandrew/enanos
+RUN go install github.com/reaandrew/enanos
 ENTRYPOINT /go/bin/enanos
 EXPOSE 8000

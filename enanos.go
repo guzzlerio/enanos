@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/REAANDREW/goSimpleHttp"
+	"github.com/reaandrew/goSimpleHttp"
 	"net/http"
 	"sync"
 	"time"
@@ -134,19 +134,21 @@ func (instance *HarnessServer) Stop(){
 
 type EnanosServer struct{
     Servers []Server
-    WaitHandle sync.WaitGroup
+    WaitHandle *sync.WaitGroup
 }
 
 func (instance *EnanosServer) Start(){
     for _,server := range instance.Servers{
         server.Start()
     }
+	 instance.WaitHandle.Add(1)
 }
 
 func (instance *EnanosServer) Stop(){
     for _,server := range instance.Servers{
         server.Stop()
     }
+	 fmt.Println("Calling Done")
     instance.WaitHandle.Done()
 }
 
@@ -155,7 +157,7 @@ type ServerFactory struct{
     ResponseBodyGenerator ResponseBodyGenerator
     ResponseCodeGenerator ResponseCodeGenerator
     Snoozer Snoozer
-    WaitHandle sync.WaitGroup
+    WaitHandle *sync.WaitGroup
 }
 
 func (instance *ServerFactory) CreateServer() Server{
@@ -165,7 +167,7 @@ func (instance *ServerFactory) CreateServer() Server{
         ResponseCodeGenerator : instance.ResponseCodeGenerator,
         Snoozer : instance.Snoozer,
     }
-    
+
     harnessServer := &HarnessServer{
         Config : instance.Config,
         ResponseBodyGenerator : instance.ResponseBodyGenerator,
@@ -174,7 +176,7 @@ func (instance *ServerFactory) CreateServer() Server{
     }
 
     servers := []Server{jitterServer, harnessServer}
-    
+
     return &EnanosServer{
         Servers: servers,
         WaitHandle : instance.WaitHandle,
