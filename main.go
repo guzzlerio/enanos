@@ -5,7 +5,6 @@ import (
 	"github.com/dustin/go-humanize"
 	"gopkg.in/alecthomas/kingpin.v1"
 	"os"
-	"os/signal"
 	"sync"
 	"time"
 )
@@ -108,18 +107,9 @@ func main() {
 		ResponseBodyGenerator: responseBodyGenerator,
 		ResponseCodeGenerator: responseCodeGenerator,
 		Snoozer:               snoozer,
-		WaitHandle:            &wg,
+		WaitHandle:            wg,
 	}
 	server := serverFactory.CreateServer()
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		for _ = range c {
-			server.Stop()
-			close(c)
-		}
-	}()
 	server.Start()
 	wg.Wait()
 }

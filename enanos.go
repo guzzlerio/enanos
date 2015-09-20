@@ -134,7 +134,7 @@ func (instance *HarnessServer) Stop(){
 
 type EnanosServer struct{
     Servers []Server
-    WaitHandle *sync.WaitGroup
+    WaitHandle sync.WaitGroup
 }
 
 func (instance *EnanosServer) Start(){
@@ -148,7 +148,6 @@ func (instance *EnanosServer) Stop(){
     for _,server := range instance.Servers{
         server.Stop()
     }
-	 fmt.Println("Calling Done")
     instance.WaitHandle.Done()
 }
 
@@ -157,7 +156,7 @@ type ServerFactory struct{
     ResponseBodyGenerator ResponseBodyGenerator
     ResponseCodeGenerator ResponseCodeGenerator
     Snoozer Snoozer
-    WaitHandle *sync.WaitGroup
+    WaitHandle sync.WaitGroup
 }
 
 func (instance *ServerFactory) CreateServer() Server{
