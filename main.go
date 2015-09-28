@@ -102,6 +102,7 @@ func main() {
 
 	fmt.Println(fmt.Sprintf("Enanos Server listening on port %d", *port))
 	var wg sync.WaitGroup
+	wg.Add(1)
 	serverFactory := ServerFactory{
 		Config:                config,
 		ResponseBodyGenerator: responseBodyGenerator,
