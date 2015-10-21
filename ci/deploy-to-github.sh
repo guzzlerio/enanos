@@ -1,3 +1,5 @@
+echo "Travis Branch = $TRAVIS_BRANCH"
+
 if [ "$TRAVIS_BRANCH" == "master" ]
 then
     gox -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}"
