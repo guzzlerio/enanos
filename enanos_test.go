@@ -154,7 +154,7 @@ var _ = Describe("Enanos Server:", func() {
 					end := time.Now()
 					difference := goclock.DurationDiff(start, end)
 					Expect(resp.StatusCode).To(Equal(http.StatusOK))
-					Expect(difference >= sleep && difference <= sleep+(5*time.Millisecond)).To(BeTrue())
+					Expect(difference >= sleep && difference <= sleep+(10*time.Millisecond)).To(BeTrue())
 				})
 			})
 		}
