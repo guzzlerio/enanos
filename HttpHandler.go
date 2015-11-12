@@ -31,7 +31,7 @@ func monitorTime(handler http.HandlerFunc, w http.ResponseWriter, r *http.Reques
 	writer := &HttpResponseWriterRecorder{0, w}
 	handler(writer, r)
 	elapsed := time.Since(start)
-	fmt.Println(fmt.Sprintf("%-15s%-4d%s", elapsed, writer.Code, r.URL.Path))
+	fmt.Println(fmt.Sprintf("%-15s%-4d%-5s%s", elapsed, writer.Code, r.Method, r.URL.Path))
 }
 
 type HttpHandler interface {
