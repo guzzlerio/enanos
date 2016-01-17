@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/reaandrew/goSimpleHttp"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
-    "fmt"
+
+	"github.com/reaandrew/goSimpleHttp"
 )
 
 const (
@@ -18,47 +19,47 @@ var (
 	responseCodes_500 []int = []int{500, 501, 502, 503, 504, 505}
 )
 
-type Server interface{
-    Start()
-    Stop()
+type Server interface {
+	Start()
+	Stop()
 }
 
-type JitterServer struct{
-    Config Configuration
-    ResponseBodyGenerator ResponseBodyGenerator
-    ResponseCodeGenerator ResponseCodeGenerator
-    Snoozer Snoozer
-    Server *goSimpleHttp.SimpleHttpServer
+type JitterServer struct {
+	Config                Configuration
+	ResponseBodyGenerator ResponseBodyGenerator
+	ResponseCodeGenerator ResponseCodeGenerator
+	Snoozer               Snoozer
+	Server                *goSimpleHttp.SimpleHttpServer
 }
 
-func (instance *JitterServer) Start(){
-    config := instance.Config
-	instance.Server = goSimpleHttp.NewSimpleHttpServer(config.port + 1, config.host)
-    if config.jitterTime == time.Duration(0){
-        return
-    }
+func (instance *JitterServer) Start() {
+	config := instance.Config
+	instance.Server = goSimpleHttp.NewSimpleHttpServer(config.port+1, config.host)
+	if config.jitterTime == time.Duration(0) {
+		return
+	}
 	var handlerFactory HttpHandler = NewDefultHttpHandler(instance.ResponseBodyGenerator, instance.ResponseCodeGenerator, instance.Snoozer, instance.Config)
 	if config.verbose {
 		handlerFactory = &VerboseHttpHandler{handlerFactory}
 	}
-    ticker := time.NewTicker(config.jitterTime)
-    stopped := false
-    go func() {
-        for {
-           select {
-            case <- ticker.C:
-                if stopped {
-                    fmt.Println("Starting server")
-                    instance.Server.Start()
-                    stopped = false
-                }else{
-                    fmt.Println("Stopping server")
-                    instance.Server.Stop()
-                    stopped = true
-                }
-            }
-        }
-     }()
+	ticker := time.NewTicker(config.jitterTime)
+	stopped := false
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				if stopped {
+					fmt.Println("Starting server")
+					instance.Server.Start()
+					stopped = false
+				} else {
+					fmt.Println("Stopping server")
+					instance.Server.Stop()
+					stopped = true
+				}
+			}
+		}
+	}()
 	urlToHandlers := map[string]goSimpleHttp.HttpHandler{
 		"/success":      handlerFactory.Success,
 		"/server_error": handlerFactory.Server_Error,
@@ -78,20 +79,20 @@ func (instance *JitterServer) Start(){
 
 	instance.Server.Start()
 }
-func (instance *JitterServer) Stop(){
-    instance.Server.Stop()
+func (instance *JitterServer) Stop() {
+	instance.Server.Stop()
 }
 
-type HarnessServer struct{
-    Config Configuration
-    ResponseBodyGenerator ResponseBodyGenerator
-    ResponseCodeGenerator ResponseCodeGenerator
-    Snoozer Snoozer
-    Server *goSimpleHttp.SimpleHttpServer
+type HarnessServer struct {
+	Config                Configuration
+	ResponseBodyGenerator ResponseBodyGenerator
+	ResponseCodeGenerator ResponseCodeGenerator
+	Snoozer               Snoozer
+	Server                *goSimpleHttp.SimpleHttpServer
 }
 
-func (instance *HarnessServer) Start(){
-    config := instance.Config
+func (instance *HarnessServer) Start() {
+	config := instance.Config
 	var shouldStop bool = true
 	var handlerFactory HttpHandler = NewDefultHttpHandler(instance.ResponseBodyGenerator, instance.ResponseCodeGenerator, instance.Snoozer, instance.Config)
 	if config.verbose {
@@ -99,9 +100,9 @@ func (instance *HarnessServer) Start(){
 	}
 	instance.Server = goSimpleHttp.NewSimpleHttpServer(config.port, config.host)
 	instance.Server.OnStopped(func() {
-        time.Sleep(config.deadTime)
-        instance.Server.Start()
-        shouldStop = true
+		time.Sleep(config.deadTime)
+		instance.Server.Start()
+		shouldStop = true
 	})
 
 	urlToHandlers := map[string]goSimpleHttp.HttpHandler{
@@ -128,56 +129,56 @@ func (instance *HarnessServer) Start(){
 	instance.Server.Start()
 }
 
-func (instance *HarnessServer) Stop(){
-    instance.Server.Stop()
+func (instance *HarnessServer) Stop() {
+	instance.Server.Stop()
 }
 
-type EnanosServer struct{
-    Servers []Server
-    WaitHandle sync.WaitGroup
+type EnanosServer struct {
+	Servers    []Server
+	WaitHandle sync.WaitGroup
 }
 
-func (instance *EnanosServer) Start(){
-    for _,server := range instance.Servers{
-        server.Start()
-    }
-	 instance.WaitHandle.Add(1)
+func (instance *EnanosServer) Start() {
+	for _, server := range instance.Servers {
+		server.Start()
+	}
+	instance.WaitHandle.Add(1)
 }
 
-func (instance *EnanosServer) Stop(){
-    for _,server := range instance.Servers{
-        server.Stop()
-    }
-    instance.WaitHandle.Done()
+func (instance *EnanosServer) Stop() {
+	for _, server := range instance.Servers {
+		server.Stop()
+	}
+	instance.WaitHandle.Done()
 }
 
-type ServerFactory struct{
-    Config Configuration
-    ResponseBodyGenerator ResponseBodyGenerator
-    ResponseCodeGenerator ResponseCodeGenerator
-    Snoozer Snoozer
-    WaitHandle sync.WaitGroup
+type ServerFactory struct {
+	Config                Configuration
+	ResponseBodyGenerator ResponseBodyGenerator
+	ResponseCodeGenerator ResponseCodeGenerator
+	Snoozer               Snoozer
+	WaitHandle            sync.WaitGroup
 }
 
-func (instance *ServerFactory) CreateServer() Server{
-    jitterServer := &JitterServer{
-        Config : instance.Config,
-        ResponseBodyGenerator : instance.ResponseBodyGenerator,
-        ResponseCodeGenerator : instance.ResponseCodeGenerator,
-        Snoozer : instance.Snoozer,
-    }
+func (instance *ServerFactory) CreateServer() Server {
+	jitterServer := &JitterServer{
+		Config:                instance.Config,
+		ResponseBodyGenerator: instance.ResponseBodyGenerator,
+		ResponseCodeGenerator: instance.ResponseCodeGenerator,
+		Snoozer:               instance.Snoozer,
+	}
 
-    harnessServer := &HarnessServer{
-        Config : instance.Config,
-        ResponseBodyGenerator : instance.ResponseBodyGenerator,
-        ResponseCodeGenerator : instance.ResponseCodeGenerator,
-        Snoozer : instance.Snoozer,
-    }
+	harnessServer := &HarnessServer{
+		Config:                instance.Config,
+		ResponseBodyGenerator: instance.ResponseBodyGenerator,
+		ResponseCodeGenerator: instance.ResponseCodeGenerator,
+		Snoozer:               instance.Snoozer,
+	}
 
-    servers := []Server{jitterServer, harnessServer}
+	servers := []Server{jitterServer, harnessServer}
 
-    return &EnanosServer{
-        Servers: servers,
-        WaitHandle : instance.WaitHandle,
-    }
+	return &EnanosServer{
+		Servers:    servers,
+		WaitHandle: instance.WaitHandle,
+	}
 }
